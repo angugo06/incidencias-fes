@@ -4,6 +4,8 @@ import fs from 'node:fs';
 
 const raiz = new URL('../', import.meta.url).pathname;
 const plan = JSON.parse(fs.readFileSync(`${raiz}tools/plan.json`, 'utf8'));
+const REPO_URL = `https://github.com/${plan.repo}`;
+const enlace = (n) => `[#${n}](${REPO_URL}/issues/${n})`;
 const horasDe = (h) => h.tareas.reduce((s, t) => s + t.horas, 0);
 const fmt = (iso) => iso.split('-').reverse().slice(0, 2).join('/'); // 2026-11-09 -> 09/11
 const escribir = (ruta, txt) => fs.writeFileSync(`${raiz}${ruta}`, txt);
@@ -34,11 +36,11 @@ const sprints = plan.sprints.map((s) => {
 
 // ---- backlog.csv (mismas columnas que el backlog anterior)
 const csv = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
-const lineas = ['ID,Tipo,Historia,Título,Área,Prioridad,Puntos,Horas,Sprint,Estado,Criterios de aceptación'];
+const lineas = ['ID,Tipo,Historia,Título,Área,Prioridad,Puntos,Horas,Sprint,Estado,Criterios de aceptación,Issue'];
 for (const h of plan.historias) {
-  lineas.push([h.id, h.tipo, '', h.historia, '', h.prioridad, h.puntos, horasDe(h), h.sprint, 'Hecho', h.criterios.join(' | ')].map(csv).join(','));
+  lineas.push([h.id, h.tipo, '', h.historia, '', h.prioridad, h.puntos, horasDe(h), h.sprint, 'Implementado', h.criterios.join(' | '), `${REPO_URL}/issues/${h.issue}`].map(csv).join(','));
   for (const t of h.tareas)
-    lineas.push([`${h.id}-${t.id}`, 'Tarea', h.id, t.titulo, t.area, '', '', t.horas, h.sprint, 'Hecho', ''].map(csv).join(','));
+    lineas.push([`${h.id}-${t.id}`, 'Tarea', h.id, t.titulo, t.area, '', '', t.horas, h.sprint, 'Implementado', '', `${REPO_URL}/issues/${t.issue}`].map(csv).join(','));
 }
 escribir('docs/backlog.csv', '﻿' + lineas.join('\n') + '\n');
 
@@ -53,16 +55,16 @@ for (const s of sprints) {
     '',
     '> Estado: código de este sprint implementado y verificado. Las fechas son el calendario planeado del sprint.',
     '',
-    '| Historia | Puntos | Horas | Inicio | Fin |',
-    '|---|---:|---:|---|---|',
-    ...s.filas.map((f) => `| ${f.h.id} ${f.h.titulo} | ${f.h.puntos} | ${f.horas} | ${fmt(f.inicio)} | ${fmt(f.fin)} |`),
+    '| Historia | Issue | Puntos | Horas | Inicio | Fin |',
+    '|---|---|---:|---:|---|---|',
+    ...s.filas.map((f) => `| ${f.h.id} ${f.h.titulo} | ${enlace(f.h.issue)} | ${f.h.puntos} | ${f.horas} | ${fmt(f.inicio)} | ${fmt(f.fin)} |`),
     '',
   ];
   for (const { h, horas } of s.filas) {
-    md.push(`## ${h.id} — ${h.titulo} (${h.puntos} pts, ${horas} h)`, '', `*${h.historia}*`, '', '**Criterios de aceptación**', '');
+    md.push(`## ${h.id} — ${h.titulo} (${h.puntos} pts, ${horas} h) · ${enlace(h.issue)}`, '', `*${h.historia}*`, '', '**Criterios de aceptación**', '');
     h.criterios.forEach((c) => md.push(`- ${c}`));
-    md.push('', '| Tarea | Área | Horas | Estado |', '|---|---|---:|---|');
-    h.tareas.forEach((t) => md.push(`| ${h.id}-${t.id} ${t.titulo} | ${t.area} | ${t.horas} | Hecho |`));
+    md.push('', '| Tarea | Issue | Área | Horas | Estado |', '|---|---|---|---:|---|');
+    h.tareas.forEach((t) => md.push(`| ${h.id}-${t.id} ${t.titulo} | ${enlace(t.issue)} | ${t.area} | ${t.horas} | Implementado |`));
     md.push('');
   }
   escribir(`docs/sprints/sprint-${s.n}.md`, md.join('\n'));
@@ -100,6 +102,38 @@ escribir('docs/gantt.md', [
   '```mermaid', mermaid, '```', '',
   '![Gantt](gantt.png)', '',
   resumen, '',
+].join('\n'));
+
+
+// ---- docs/github.md: enlace entre plan, issues y GitHub Project
+const filasIssues = plan.historias.flatMap((h) => [
+  `| ${enlace(h.issue)} | **${h.id}** ${h.titulo} | Historia | ${h.sprint} | ${h.puntos} pts / ${horasDe(h)} h |`,
+  ...h.tareas.map((t) => `| ${enlace(t.issue)} | ${h.id}-${t.id} ${t.titulo} | Tarea (sub-issue de ${enlace(h.issue)}) | ${h.sprint} | ${t.horas} h |`),
+]);
+escribir('docs/github.md', [
+  '# GitHub: repositorio, issues y Project', '',
+  `Repositorio: ${REPO_URL}`, '',
+  'El plan (`tools/plan.json`) es la fuente de verdad; cada historia y tarea tiene su issue. Este archivo se genera con `node tools/generar-plan.mjs`.', '',
+  '## Estructura en GitHub', '',
+  '| Elemento | Convención |',
+  '|---|---|',
+  '| Historia | Issue `HU-NN Título` / `HT-NN Título`, etiquetas `sprint-N`, `historia` o `tecnica`, `puntos-N` |',
+  '| Tarea | Sub-issue de su historia `HU-NN-TN Título (N h)`, etiquetas `sprint-N`, `tarea` y el área (`backend`, `frontend`, `bd`, `pruebas`, `docs`, `devops`) |',
+  '| Sprint | Etiqueta `sprint-1`, `sprint-2`, `sprint-3` (y milestone, ver abajo) |',
+  '| Avance | Se cierra el issue de la historia en la revisión del sprint; el progreso de sub-issues se ve en su barra |',
+  '| Ramas y PR | `sprint-N/HU-NN-descripcion`; el PR cierra el issue con `Closes #N` |', '',
+  '## Preparar el GitHub Project (tablero)', '',
+  'Las herramientas automáticas no pueden crear ni editar Projects v2, así que se arma desde la web (unos minutos):', '',
+  '1. En el repositorio: **Projects → Link a project** (o crea uno nuevo, plantilla *Board*) y nómbralo «Incidencias FES».',
+  '2. En el proyecto: **Add item → Add items from repository** y agrega los 57 issues (o activa el flujo *Auto-add* con el filtro `is:issue repo:' + plan.repo + '`).',
+  '3. Campos recomendados: **Sprint** (tipo *Iteration*, 1 semana: 9, 17 y 24 de nov), **Estimate** (número, horas) y **Points** (número).',
+  '4. Vistas: *Tablero* agrupado por **Status** (Todo, In progress, Done), *Tabla* agrupada por **Sprint** y *Roadmap* por el campo Sprint.',
+  '5. Workflows del proyecto: activar «Item closed → Status = Done» para que cerrar un issue mueva la tarjeta.', '',
+  '### Milestones (opcional)', '',
+  'En **Issues → Milestones → New milestone** crea `Sprint 1` (13/11/2026), `Sprint 2` (23/11/2026) y `Sprint 3` (30/11/2026). Luego filtra `label:sprint-1`, selecciona todos y asígnalos al milestone.', '',
+  '## Issues', '',
+  '| Issue | Título | Tipo | Sprint | Esfuerzo |', '|---|---|---|---:|---|',
+  ...filasIssues, '',
 ].join('\n'));
 
 console.log(`Plan generado: ${plan.historias.length} historias, ${sprints.map((s) => `S${s.n}=${s.puntos}pts/${s.horas}h`).join(' ')}`);
