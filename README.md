@@ -4,7 +4,7 @@ Sistema web para **registrar, asignar y dar seguimiento a incidencias de infraes
 
 Proyecto escolar de Ingeniería de Software, desarrollado en **3 sprints de 1 semana** con Scrum.
 
-**Repositorio:** https://github.com/angugo06/incidencias-fes · **Avance:** [issues](https://github.com/angugo06/incidencias-fes/issues) y tablero en GitHub Projects (ver [docs/github.md](docs/github.md)).
+**Repositorio:** https://github.com/angugo06/incidencias-fes · **Avance:** [issues](https://github.com/angugo06/incidencias-fes/issues) y [tablero en GitHub Projects](https://github.com/users/angugo06/projects/2) (ver [docs/github.md](docs/github.md)).
 
 | Capa | Tecnología |
 |---|---|

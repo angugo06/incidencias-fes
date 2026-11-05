@@ -3,7 +3,7 @@
 **Proyecto:** Incidencias FES — registrar, asignar y dar seguimiento a incidencias de infraestructura de la facultad.
 **Stack:** React 18 (Vite) · Express 5 · PostgreSQL 16 · Node 22. Idioma de código, UI y docs: **español**.
 **Autor:** Andre (angugo06). Eres una herramienta: no agregues atribuciones de IA en commits, PR, código ni docs.
-**Repositorio:** https://github.com/angugo06/incidencias-fes (issues y GitHub Project ligados; ver `docs/github.md`).
+**Repositorio:** https://github.com/angugo06/incidencias-fes (issues, milestones y [GitHub Project](https://github.com/users/angugo06/projects/2) ligados; ver `docs/github.md`).
 
 ## Qué leer primero (en orden)
 

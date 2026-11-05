@@ -2,6 +2,8 @@
 
 Repositorio: https://github.com/angugo06/incidencias-fes
 
+GitHub Project (tablero): https://github.com/users/angugo06/projects/2
+
 El plan (`tools/plan.json`) es la fuente de verdad; cada historia y tarea tiene su issue. Este archivo se genera con `node tools/generar-plan.mjs`.
 
 ## Estructura en GitHub
@@ -14,9 +16,9 @@ El plan (`tools/plan.json`) es la fuente de verdad; cada historia y tarea tiene 
 | Avance | Se cierra el issue de la historia en la revisión del sprint; el progreso de sub-issues se ve en su barra |
 | Ramas y PR | `sprint-N/HU-NN-descripcion`; el PR cierra el issue con `Closes #N` |
 
-## Preparar el GitHub Project (tablero)
+## Configurar el GitHub Project (tablero)
 
-Las herramientas automáticas no pueden crear ni editar Projects v2, así que se arma desde la web (unos minutos):
+El Project ya existe: https://github.com/users/angugo06/projects/2. Las herramientas automáticas no pueden editar Projects v2, así que se configura desde la web:
 
 1. En el repositorio: **Projects → Link a project** (o crea uno nuevo, plantilla *Board*) y nómbralo «Incidencias FES».
 2. En el proyecto: **Add item → Add items from repository** y agrega los 57 issues (o activa el flujo *Auto-add* con el filtro `is:issue repo:angugo06/incidencias-fes`).

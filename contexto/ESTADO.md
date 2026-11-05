@@ -26,7 +26,7 @@ El código de las 11 historias (48 pts, 96 h) está implementado y verificado. L
 ## Pendiente / siguiente
 
 - [ ] Probar `docker compose up` en una máquina con Docker Desktop.
-- [ ] Crear el GitHub Project (pasos en `docs/github.md`; las herramientas automáticas no pueden crear Projects v2). Los milestones Sprint 1-3 ya existen.
+- [ ] Configurar el GitHub Project (ya creado): agregar los 57 issues, campos Sprint/Estimate y vistas (pasos en `docs/github.md`). Los milestones Sprint 1-3 ya existen.
 - [ ] Cerrar el issue de cada historia en la revisión de su sprint.
 - [ ] Retrospectiva de cada sprint en `docs/sprints/` (sección al final del archivo).
 
