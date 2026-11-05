@@ -10,7 +10,7 @@ El plan (`tools/plan.json`) es la fuente de verdad; cada historia y tarea tiene 
 |---|---|
 | Historia | Issue `HU-NN Título` / `HT-NN Título`, etiquetas `sprint-N`, `historia` o `tecnica`, `puntos-N` |
 | Tarea | Sub-issue de su historia `HU-NN-TN Título (N h)`, etiquetas `sprint-N`, `tarea` y el área (`backend`, `frontend`, `bd`, `pruebas`, `docs`, `devops`) |
-| Sprint | Etiqueta `sprint-1`, `sprint-2`, `sprint-3` (y milestone, ver abajo) |
+| Sprint | Etiqueta `sprint-1`, `sprint-2`, `sprint-3` y milestone `Sprint N` |
 | Avance | Se cierra el issue de la historia en la revisión del sprint; el progreso de sub-issues se ve en su barra |
 | Ramas y PR | `sprint-N/HU-NN-descripcion`; el PR cierra el issue con `Closes #N` |
 
@@ -24,9 +24,9 @@ Las herramientas automáticas no pueden crear ni editar Projects v2, así que se
 4. Vistas: *Tablero* agrupado por **Status** (Todo, In progress, Done), *Tabla* agrupada por **Sprint** y *Roadmap* por el campo Sprint.
 5. Workflows del proyecto: activar «Item closed → Status = Done» para que cerrar un issue mueva la tarjeta.
 
-### Milestones (opcional)
+### Milestones
 
-En **Issues → Milestones → New milestone** crea `Sprint 1` (13/11/2026), `Sprint 2` (23/11/2026) y `Sprint 3` (30/11/2026). Luego filtra `label:sprint-1`, selecciona todos y asígnalos al milestone.
+Ya existen y tienen asignados sus issues: [Sprint 1](https://github.com/angugo06/incidencias-fes/milestone/1) (vence 13/11/2026), [Sprint 2](https://github.com/angugo06/incidencias-fes/milestone/2) (23/11/2026) y [Sprint 3](https://github.com/angugo06/incidencias-fes/milestone/3) (30/11/2026). Todo issue nuevo debe llevar el milestone de su sprint.
 
 ## Issues
 

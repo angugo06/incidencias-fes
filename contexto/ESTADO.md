@@ -21,12 +21,12 @@ El código de las 11 historias (48 pts, 96 h) está implementado y verificado. L
 | `vite build` | OK |
 | E2E con Chromium (`tools/e2e-capturas.mjs`) | OK |
 | Docker Compose | **No probado** (no había Docker en el entorno de desarrollo) |
-| GitHub | 57 issues creados y abiertos (11 historias + 46 tareas como sub-issues); ver `docs/github.md` |
+| GitHub | 57 issues abiertos (11 historias + 46 tareas como sub-issues) con milestones Sprint 1-3; ver `docs/github.md` |
 
 ## Pendiente / siguiente
 
 - [ ] Probar `docker compose up` en una máquina con Docker Desktop.
-- [ ] Crear el GitHub Project y los milestones (pasos en `docs/github.md`; las herramientas automáticas no pueden crear Projects v2).
+- [ ] Crear el GitHub Project (pasos en `docs/github.md`; las herramientas automáticas no pueden crear Projects v2). Los milestones Sprint 1-3 ya existen.
 - [ ] Cerrar el issue de cada historia en la revisión de su sprint.
 - [ ] Retrospectiva de cada sprint en `docs/sprints/` (sección al final del archivo).
 
