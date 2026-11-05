@@ -5,7 +5,7 @@ Formato breve: contexto → decisión → consecuencia.
 ## ADR-001 — Alcance reducido a 7 funciones
 - **Contexto:** el backlog original tenía 11 historias (login, fotos, avisos, reportes).
 - **Decisión:** solo las 7 funciones pedidas; el resto sale (ver `tools/plan.json`, `fueraDeAlcance`).
-- **Consecuencia:** 11 historias nuevas (2 técnicas), 48 puntos, 3 sprints.
+- **Consecuencia:** 11 historias nuevas (2 técnicas), 30 puntos, 3 sprints de 3 días hábiles (20 h cada uno).
 
 ## ADR-002 — Sin autenticación
 - **Contexto:** login y roles no están en el alcance.

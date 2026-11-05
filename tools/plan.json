@@ -12,9 +12,7 @@
       "dias": [
         "2026-11-09",
         "2026-11-10",
-        "2026-11-11",
-        "2026-11-12",
-        "2026-11-13"
+        "2026-11-11"
       ]
     },
     {
@@ -22,11 +20,9 @@
       "nombre": "Atención de la incidencia",
       "meta": "Consultar el detalle, asignar un responsable y llevar la incidencia por sus estados.",
       "dias": [
-        "2026-11-17",
-        "2026-11-18",
-        "2026-11-19",
-        "2026-11-20",
-        "2026-11-23"
+        "2026-11-12",
+        "2026-11-13",
+        "2026-11-17"
       ]
     },
     {
@@ -34,11 +30,9 @@
       "nombre": "Seguimiento, filtros y cierre",
       "meta": "Seguimiento con comentarios, filtros por estado y categoría, pruebas y documentación final.",
       "dias": [
-        "2026-11-24",
-        "2026-11-25",
-        "2026-11-26",
-        "2026-11-27",
-        "2026-11-30"
+        "2026-11-18",
+        "2026-11-19",
+        "2026-11-20"
       ]
     }
   ],
@@ -47,7 +41,7 @@
       "id": "HT-01",
       "sprint": 1,
       "tipo": "Técnica",
-      "puntos": 3,
+      "puntos": 2,
       "prioridad": 1,
       "titulo": "Entorno y esqueleto del proyecto",
       "historia": "Como equipo, queremos un repositorio con API, cliente y base de datos arrancando, para empezar a construir funciones sobre una base estable.",
@@ -75,14 +69,14 @@
           "id": "T3",
           "titulo": "Esqueleto Express: app, config, pool de pg y /api/salud",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 14
         },
         {
           "id": "T4",
           "titulo": "Esqueleto React (Vite), router y barra de navegación",
           "area": "Frontend",
-          "horas": 2,
+          "horas": 1,
           "issue": 15
         }
       ],
@@ -92,7 +86,7 @@
       "id": "HU-01",
       "sprint": 1,
       "tipo": "Historia",
-      "puntos": 3,
+      "puntos": 2,
       "prioridad": 1,
       "titulo": "Catálogos y esquema de base de datos",
       "historia": "Como usuario de la facultad, quiero elegir la ubicación y la categoría de una lista válida, para que los reportes queden ordenados y comparables.",
@@ -106,7 +100,7 @@
           "id": "T1",
           "titulo": "Esquema SQL: tablas, tipos enumerados, restricciones e índices",
           "area": "BD",
-          "horas": 3,
+          "horas": 2,
           "issue": 16
         },
         {
@@ -120,7 +114,7 @@
           "id": "T3",
           "titulo": "Script db:init y endpoint GET /api/catalogos",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 18
         }
       ],
@@ -130,7 +124,7 @@
       "id": "HU-02",
       "sprint": 1,
       "tipo": "Historia",
-      "puntos": 4,
+      "puntos": 2,
       "prioridad": 1,
       "titulo": "Registrar una incidencia",
       "historia": "Como usuario de la facultad, quiero registrar una incidencia de infraestructura, para que quede constancia y se pueda atender.",
@@ -144,21 +138,21 @@
           "id": "T1",
           "titulo": "POST /api/incidencias con folio automático",
           "area": "Backend",
-          "horas": 3,
+          "horas": 1,
           "issue": 19
         },
         {
           "id": "T2",
           "titulo": "Transacción: incidencia + evento «registro»",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 20
         },
         {
           "id": "T3",
           "titulo": "Manejo uniforme de errores de la API",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 21
         },
         {
@@ -175,7 +169,7 @@
       "id": "HU-03",
       "sprint": 1,
       "tipo": "Historia",
-      "puntos": 4,
+      "puntos": 2,
       "prioridad": 1,
       "titulo": "Capturar ubicación, categoría, descripción y fecha",
       "historia": "Como usuario de la facultad, quiero capturar ubicación, categoría, descripción y fecha en un formulario, para describir bien el problema.",
@@ -189,21 +183,21 @@
           "id": "T1",
           "titulo": "Validación en servidor (obligatorios, longitud, fecha no futura, catálogos activos)",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 23
         },
         {
           "id": "T2",
           "titulo": "Formulario React con selectores alimentados por /api/catalogos",
           "area": "Frontend",
-          "horas": 3,
+          "horas": 1,
           "issue": 24
         },
         {
           "id": "T3",
           "titulo": "Validación en cliente y mensajes por campo",
           "area": "Frontend",
-          "horas": 2,
+          "horas": 1,
           "issue": 25
         },
         {
@@ -220,7 +214,7 @@
       "id": "HU-04",
       "sprint": 1,
       "tipo": "Historia",
-      "puntos": 3,
+      "puntos": 2,
       "prioridad": 2,
       "titulo": "Consultar las incidencias registradas",
       "historia": "Como usuario de la facultad, quiero ver la lista de incidencias con su estado, para saber qué se ha reportado y cómo va.",
@@ -234,14 +228,14 @@
           "id": "T1",
           "titulo": "GET /api/incidencias ordenado por fecha de registro",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 27
         },
         {
           "id": "T2",
           "titulo": "Tabla de incidencias con insignias de estado",
           "area": "Frontend",
-          "horas": 3,
+          "horas": 2,
           "issue": 28
         },
         {
@@ -258,7 +252,7 @@
       "id": "HU-05",
       "sprint": 2,
       "tipo": "Historia",
-      "puntos": 4,
+      "puntos": 3,
       "prioridad": 2,
       "titulo": "Consultar el detalle de una incidencia",
       "historia": "Como usuario de la facultad, quiero abrir una incidencia y ver todos sus datos, para conocer su situación actual.",
@@ -272,7 +266,7 @@
           "id": "T1",
           "titulo": "GET /api/incidencias/:id con uniones y seguimiento",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 30
         },
         {
@@ -286,7 +280,7 @@
           "id": "T3",
           "titulo": "Pantalla de detalle",
           "area": "Frontend",
-          "horas": 4,
+          "horas": 3,
           "issue": 32
         },
         {
@@ -303,7 +297,7 @@
       "id": "HU-06",
       "sprint": 2,
       "tipo": "Historia",
-      "puntos": 5,
+      "puntos": 3,
       "prioridad": 2,
       "titulo": "Asignar una incidencia a un responsable",
       "historia": "Como coordinador, quiero asignar una incidencia a una persona de mantenimiento, para que alguien sea responsable de atenderla.",
@@ -317,7 +311,7 @@
           "id": "T1",
           "titulo": "PATCH /api/incidencias/:id/asignacion con reglas de negocio",
           "area": "Backend",
-          "horas": 3,
+          "horas": 2,
           "issue": 34
         },
         {
@@ -331,7 +325,7 @@
           "id": "T3",
           "titulo": "Selector de responsable en el detalle",
           "area": "Frontend",
-          "horas": 3,
+          "horas": 1,
           "issue": 36
         },
         {
@@ -345,17 +339,18 @@
           "id": "T5",
           "titulo": "Pruebas de asignación y reasignación",
           "area": "Pruebas",
-          "horas": 2,
+          "horas": 1,
           "issue": 38
         }
       ],
-      "issue": 7
+      "issue": 7,
+      "corto": "Asignar responsable"
     },
     {
       "id": "HU-07",
       "sprint": 2,
       "tipo": "Historia",
-      "puntos": 6,
+      "puntos": 4,
       "prioridad": 2,
       "titulo": "Cambiar el estado de una incidencia",
       "historia": "Como personal de mantenimiento, quiero cambiar el estado de la incidencia (en proceso, resuelta), para reflejar el avance del trabajo.",
@@ -369,14 +364,14 @@
           "id": "T1",
           "titulo": "Módulo de transiciones (estados.js)",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 39
         },
         {
           "id": "T2",
           "titulo": "PATCH /api/incidencias/:id/estado con validación",
           "area": "Backend",
-          "horas": 3,
+          "horas": 2,
           "issue": 40
         },
         {
@@ -390,24 +385,25 @@
           "id": "T4",
           "titulo": "Botones de estado según transiciones permitidas",
           "area": "Frontend",
-          "horas": 3,
+          "horas": 2,
           "issue": 42
         },
         {
           "id": "T5",
           "titulo": "Pruebas del flujo y de transiciones inválidas",
           "area": "Pruebas",
-          "horas": 3,
+          "horas": 2,
           "issue": 43
         }
       ],
-      "issue": 8
+      "issue": 8,
+      "corto": "Cambiar estado"
     },
     {
       "id": "HU-08",
       "sprint": 3,
       "tipo": "Historia",
-      "puntos": 5,
+      "puntos": 3,
       "prioridad": 3,
       "titulo": "Seguimiento básico con línea de tiempo",
       "historia": "Como usuario de la facultad, quiero ver la historia de la incidencia y agregar comentarios, para dar seguimiento sin preguntar a nadie.",
@@ -421,7 +417,7 @@
           "id": "T1",
           "titulo": "POST /api/incidencias/:id/comentarios",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 44
         },
         {
@@ -435,21 +431,21 @@
           "id": "T3",
           "titulo": "Componente de línea de tiempo",
           "area": "Frontend",
-          "horas": 3,
+          "horas": 2,
           "issue": 46
         },
         {
           "id": "T4",
           "titulo": "Formulario de comentario",
           "area": "Frontend",
-          "horas": 2,
+          "horas": 1,
           "issue": 47
         },
         {
           "id": "T5",
           "titulo": "Pruebas de comentarios y orden",
           "area": "Pruebas",
-          "horas": 2,
+          "horas": 1,
           "issue": 48
         }
       ],
@@ -459,7 +455,7 @@
       "id": "HU-09",
       "sprint": 3,
       "tipo": "Historia",
-      "puntos": 4,
+      "puntos": 2,
       "prioridad": 3,
       "titulo": "Filtros sencillos por estado y categoría",
       "historia": "Como usuario de la facultad, quiero filtrar la lista por estado o categoría, para encontrar rápido lo que busco.",
@@ -473,14 +469,14 @@
           "id": "T1",
           "titulo": "Parámetros estado y categoría en GET /api/incidencias",
           "area": "Backend",
-          "horas": 2,
+          "horas": 1,
           "issue": 49
         },
         {
           "id": "T2",
           "titulo": "Controles de filtro en la lista",
           "area": "Frontend",
-          "horas": 3,
+          "horas": 1,
           "issue": 50
         },
         {
@@ -494,7 +490,7 @@
           "id": "T4",
           "titulo": "Pruebas de combinaciones de filtros",
           "area": "Pruebas",
-          "horas": 2,
+          "horas": 1,
           "issue": 52
         }
       ],
@@ -504,7 +500,7 @@
       "id": "HT-02",
       "sprint": 3,
       "tipo": "Técnica",
-      "puntos": 7,
+      "puntos": 5,
       "prioridad": 3,
       "titulo": "Pruebas finales, documentación y cierre",
       "historia": "Como equipo, queremos validar todo el flujo y dejar el proyecto documentado, para entregarlo y que cualquiera pueda continuarlo.",
@@ -518,21 +514,21 @@
           "id": "T1",
           "titulo": "Prueba de punta a punta del flujo completo",
           "area": "Pruebas",
-          "horas": 3,
+          "horas": 2,
           "issue": 53
         },
         {
           "id": "T2",
           "titulo": "Guía de usuario y referencia de la API",
           "area": "Docs",
-          "horas": 4,
+          "horas": 3,
           "issue": 54
         },
         {
           "id": "T3",
           "titulo": "Actualizar el contexto permanente",
           "area": "Docs",
-          "horas": 2,
+          "horas": 1,
           "issue": 55
         },
         {
@@ -546,11 +542,12 @@
           "id": "T5",
           "titulo": "Revisión final y retrospectiva",
           "area": "Docs",
-          "horas": 3,
+          "horas": 2,
           "issue": 57
         }
       ],
-      "issue": 11
+      "issue": 11,
+      "corto": "Pruebas y cierre"
     }
   ],
   "fueraDeAlcance": [

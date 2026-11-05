@@ -49,7 +49,7 @@ for (const s of sprints) {
   const md = [
     `# Sprint ${s.n} — ${s.nombre}`,
     '',
-    `**Fechas:** ${fmt(s.dias[0])} al ${fmt(s.dias.at(-1))} de noviembre de 2026 (5 días hábiles).`,
+    `**Fechas:** ${fmt(s.dias[0])} al ${fmt(s.dias.at(-1))} de noviembre de 2026 (${s.dias.length} días hábiles).`,
     `**Meta:** ${s.meta}`,
     `**Compromiso:** ${s.puntos} puntos · ${s.horas} h de ${s.capacidad} h de capacidad (${plan.horasPorDia} h/día).`,
     '',
@@ -82,7 +82,7 @@ escribir('docs/sprints/resumen.md', resumen + '\n');
 // ---- Gantt Mermaid
 const g = [
   'gantt',
-  `    title ${plan.proyecto}: 3 sprints de 1 semana (nov 2026)`,
+  `    title ${plan.proyecto}: 3 sprints de 3 días hábiles (nov 2026)`,
   '    dateFormat YYYY-MM-DD',
   '    axisFormat %d/%m',
   `    excludes weekends, ${plan.feriados.join(', ')}`,
@@ -90,14 +90,14 @@ const g = [
 ];
 for (const s of sprints) {
   g.push(`    section Sprint ${s.n} ${s.nombre}`);
-  for (const f of s.filas) g.push(`    ${f.h.id} ${f.h.titulo} (${f.h.puntos} pts) :${f.h.id.toLowerCase()}, ${f.inicio}, ${f.dias}d`);
+  for (const f of s.filas) g.push(`    ${f.h.id} ${f.h.corto ?? f.h.titulo} (${f.h.puntos} pts) :${f.h.id.toLowerCase()}, ${f.inicio}, ${f.dias}d`);
   g.push(`    Revisión y retrospectiva S${s.n} :milestone, ${s.dias.at(-1)}, 0d`);
 }
 const mermaid = g.join('\n');
 escribir('docs/gantt.mmd', mermaid + '\n');
 escribir('docs/gantt.md', [
   '# Diagrama de Gantt', '',
-  'Calendario de los 3 sprints (lunes a viernes, 7 h productivas por día). El 16 de noviembre es feriado y se excluye.',
+  'Calendario de los 3 sprints (3 días hábiles cada uno, 7 h productivas por día). El 16 de noviembre es feriado y se excluye.',
   'Las historias de cada sprint van en secuencia; una historia puede compartir día con la anterior. El archivo fuente es `gantt.mmd`.', '',
   '```mermaid', mermaid, '```', '',
   '![Gantt](gantt.png)', '',
@@ -127,11 +127,13 @@ escribir('docs/github.md', [
   `El Project ya existe: ${plan.project}. Las herramientas automáticas no pueden editar Projects v2, así que se configura desde la web:`, '',
   '1. En el repositorio: **Projects → Link a project** (o crea uno nuevo, plantilla *Board*) y nómbralo «Incidencias FES».',
   '2. En el proyecto: **Add item → Add items from repository** y agrega los 57 issues (o activa el flujo *Auto-add* con el filtro `is:issue repo:' + plan.repo + '`).',
-  '3. Campos recomendados: **Sprint** (tipo *Iteration*, 1 semana: 9, 17 y 24 de nov), **Estimate** (número, horas) y **Points** (número).',
+  '3. Campos recomendados: **Sprint** (tipo *Iteration*; inicios el 9, 12 y 18 de nov, 3 días hábiles cada uno), **Estimate** (número, horas) y **Points** (número).',
   '4. Vistas: *Tablero* agrupado por **Status** (Todo, In progress, Done), *Tabla* agrupada por **Sprint** y *Roadmap* por el campo Sprint.',
   '5. Workflows del proyecto: activar «Item closed → Status = Done» para que cerrar un issue mueva la tarjeta.', '',
   '### Milestones', '',
-  `Ya existen y tienen asignados sus issues: [Sprint 1](${REPO_URL}/milestone/1) (vence 13/11/2026), [Sprint 2](${REPO_URL}/milestone/2) (23/11/2026) y [Sprint 3](${REPO_URL}/milestone/3) (30/11/2026). Todo issue nuevo debe llevar el milestone de su sprint.`, '',
+  `Ya existen y tienen asignados sus issues: ${sprints.map((s) => `[Sprint ${s.n}](${REPO_URL}/milestone/${s.n}) (vence ${fmt(s.dias.at(-1))}/2026)`).join(', ')}. Todo issue nuevo debe llevar el milestone de su sprint.`, '',
+  '### Cierre automático de sprints', '',
+  'El workflow [`cerrar-sprint.yml`](../.github/workflows/cerrar-sprint.yml) cierra los issues abiertos del milestone en la fecha de revisión de cada sprint (también se puede lanzar a mano desde la pestaña *Actions*). El workflow del Project «Item closed → Done» mueve las tarjetas.', '',
   '## Issues', '',
   '| Issue | Título | Tipo | Sprint | Esfuerzo |', '|---|---|---|---:|---|',
   ...filasIssues, '',

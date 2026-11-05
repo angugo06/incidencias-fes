@@ -12,5 +12,5 @@
 | Seguimiento | Línea de tiempo de eventos de una incidencia |
 | Evento | Entrada del seguimiento: registro, asignación, estado o comentario |
 | Historia (HU) | Requisito desde el punto de vista del usuario; HT = historia técnica |
-| Sprint | Iteración de 1 semana (5 días hábiles, 7 h productivas por día) |
+| Sprint | Iteración de 3 días hábiles (7 h productivas por día, 20 h comprometidas) |
 | Punto | Unidad de esfuerzo; 1 punto = 2 horas |

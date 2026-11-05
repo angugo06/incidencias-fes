@@ -1,0 +1,46 @@
+# Cierra los issues abiertos del milestone de un sprint en su fecha de revisión.
+# También se puede lanzar a mano: pestaña Actions > "Cerrar sprint" > Run workflow.
+name: Cerrar sprint
+
+on:
+  schedule:
+    # Hora UTC = 19:00 en Ciudad de México el día de revisión de cada sprint
+    - cron: "0 1 12 11 *"   # Sprint 1: 11/nov
+    - cron: "0 1 18 11 *"   # Sprint 2: 17/nov
+    - cron: "0 1 21 11 *"   # Sprint 3: 20/nov
+  workflow_dispatch:
+    inputs:
+      sprint:
+        description: "Sprint a cerrar"
+        required: true
+        type: choice
+        options: ["1", "2", "3"]
+
+permissions:
+  issues: write
+
+jobs:
+  cerrar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cerrar issues del milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SPRINT_MANUAL: ${{ inputs.sprint }}
+          CRON: ${{ github.event.schedule }}
+        run: |
+          # Sprint según la ejecución manual o el cron que disparó
+          if [ -n "$SPRINT_MANUAL" ]; then N="$SPRINT_MANUAL"
+          else
+            case "$CRON" in
+              "0 1 12 11 *") N=1 ;;
+              "0 1 18 11 *") N=2 ;;
+              "0 1 21 11 *") N=3 ;;
+              *) echo "Cron desconocido: $CRON"; exit 1 ;;
+            esac
+          fi
+          echo "Cerrando issues abiertos del milestone Sprint $N"
+          for i in $(gh issue list --milestone "Sprint $N" --state open --limit 200 --json number --jq '.[].number'); do
+            gh issue close "$i" --reason completed --comment "Sprint $N cerrado en la revisión."
+          done

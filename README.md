@@ -2,7 +2,7 @@
 
 Sistema web para **registrar, asignar y dar seguimiento a incidencias de infraestructura** de la facultad (HDMI que no funciona, contactos sin corriente, mobiliario dañado, etc.).
 
-Proyecto escolar de Ingeniería de Software, desarrollado en **3 sprints de 1 semana** con Scrum.
+Proyecto escolar de Ingeniería de Software, desarrollado en **3 sprints de 3 días hábiles** con Scrum.
 
 **Repositorio:** https://github.com/angugo06/incidencias-fes · **Avance:** [issues](https://github.com/angugo06/incidencias-fes/issues) y [tablero en GitHub Projects](https://github.com/users/angugo06/projects/2) (ver [docs/github.md](docs/github.md)).
 
@@ -72,6 +72,6 @@ incidencias/
 
 ## Planeación
 
-48 puntos y 96 horas en 11 historias (2 técnicas y 9 de usuario).
+30 puntos y 60 horas en 11 historias (10 puntos y 20 horas por sprint) (2 técnicas y 9 de usuario).
 
 ![Gantt](docs/gantt.png)
