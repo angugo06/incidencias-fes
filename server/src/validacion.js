@@ -40,3 +40,9 @@ export function validarNuevaIncidencia(body = {}, fechaHoy = hoy()) {
 
   return { valor: { ubicacion_id, categoria_id, descripcion, fecha_incidencia }, errores };
 }
+
+export function validarAsignacion(body = {}) {
+  const errores = {};
+  if (!esEnteroPositivo(body.responsable_id)) errores.responsable_id = 'Elige un responsable';
+  return { valor: { responsable_id: body.responsable_id }, errores };
+}

@@ -101,6 +101,31 @@ test('GET detalle: 404 si no existe y 400 si el id no es válido', async () => {
   await api().get('/api/incidencias/abc').expect(400);
 });
 
+// ---- Asignar (HU-06)
+test('asignar pasa a asignada y deja evento', async () => {
+  const a = await crear();
+  const { body } = await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 2 }).expect(200);
+  assert.equal(body.estado, 'asignada');
+  assert.equal(body.responsable_id, 2);
+  assert.equal(body.seguimiento.at(-1).tipo, 'asignacion');
+});
+
+test('reasignar a otra persona es válido; a la misma da 409', async () => {
+  const a = await crear();
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 1 }).expect(200);
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 1 }).expect(409);
+  const { body } = await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 3 }).expect(200);
+  assert.equal(body.responsable_id, 3);
+});
+
+test('asignar valida responsable y estado', async () => {
+  const a = await crear();
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({}).expect(400);
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 999 }).expect(422);
+  await api().patch('/api/incidencias/999/asignacion').send({ responsable_id: 1 }).expect(404);
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 1 }).expect(200);
+});
+
 test('ruta /api desconocida devuelve 404 JSON', async () => {
   const { body } = await api().get('/api/nada').expect(404);
   assert.equal(body.error.codigo, 'ruta_no_encontrada');

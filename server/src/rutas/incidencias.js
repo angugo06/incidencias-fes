@@ -1,7 +1,8 @@
-// Rutas de /api/incidencias: registrar, listar, detalle.
+// Rutas de /api/incidencias: registrar, listar, detalle, asignar.
 import { Router } from 'express';
-import { ErrorApi, noEncontrada } from '../errores.js';
-import { hoy, validarId, validarNuevaIncidencia } from '../validacion.js';
+import { ErrorApi, noEncontrada, conflicto } from '../errores.js';
+import { admiteAsignacion } from '../estados.js';
+import { hoy, validarId, validarNuevaIncidencia, validarAsignacion } from '../validacion.js';
 
 const LIMITE_LISTA = 200;
 
@@ -42,6 +43,7 @@ async function obtenerDetalle(db, id) {
   const inc = rows[0];
   return {
     ...inc,
+    puede_asignar: admiteAsignacion(inc.estado),
     seguimiento: seg.rows,
   };
 }
@@ -60,6 +62,16 @@ async function enTransaccion(pool, fn) {
   } finally {
     client.release();
   }
+}
+
+// Bloquea la fila para evitar cambios concurrentes
+async function bloquear(client, id) {
+  const { rows } = await client.query(
+    'SELECT id, estado, responsable_id FROM incidencias WHERE id = $1 FOR UPDATE',
+    [id],
+  );
+  if (!rows.length) throw noEncontrada();
+  return rows[0];
 }
 
 export function rutasIncidencias(pool, { zonaHoraria }) {
@@ -106,6 +118,34 @@ export function rutasIncidencias(pool, { zonaHoraria }) {
     const det = await obtenerDetalle(pool, leerId(req));
     if (!det) throw noEncontrada();
     res.json(det);
+  });
+
+  // Asignar (o reasignar) responsable
+  r.patch('/:id/asignacion', async (req, res) => {
+    const id = leerId(req);
+    const { responsable_id } = exigirValido(validarAsignacion(req.body));
+    await enTransaccion(pool, async (client) => {
+      const actual = await bloquear(client, id);
+      if (!admiteAsignacion(actual.estado))
+        throw conflicto('estado_no_asignable', 'Solo se asigna una incidencia nueva o asignada');
+      if (actual.responsable_id === responsable_id)
+        throw conflicto('sin_cambios', 'La incidencia ya está asignada a esa persona');
+      const resp = await client.query('SELECT nombre FROM responsables WHERE id = $1 AND activo', [responsable_id]);
+      if (!resp.rowCount)
+        throw new ErrorApi(422, 'catalogo_invalido', 'Catálogo inválido', {
+          responsable_id: 'El responsable no existe o está inactivo',
+        });
+      await client.query(
+        `UPDATE incidencias SET estado = 'asignada', responsable_id = $2, actualizada_en = now() WHERE id = $1`,
+        [id, responsable_id],
+      );
+      await client.query(
+        `INSERT INTO seguimiento (incidencia_id, tipo, estado_anterior, estado_nuevo, responsable_id, texto)
+         VALUES ($1,'asignacion',$2,'asignada',$3,$4)`,
+        [id, actual.estado, responsable_id, `Asignada a ${resp.rows[0].nombre}`],
+      );
+    });
+    res.json(await obtenerDetalle(pool, id));
   });
 
   return r;
