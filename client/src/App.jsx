@@ -1,5 +1,6 @@
 // Layout general y rutas de la aplicación.
 import { NavLink, Route, Routes } from 'react-router-dom';
+import NuevaIncidencia from './paginas/NuevaIncidencia.jsx';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       </header>
       <main className="contenedor">
         <Routes>
+          <Route path="/nueva" element={<NuevaIncidencia />} />
           <Route path="*" element={<p>Página no encontrada.</p>} />
         </Routes>
       </main>

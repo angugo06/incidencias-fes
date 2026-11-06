@@ -6,6 +6,7 @@ import { config } from '../src/config.js';
 import { crearPool } from '../src/db.js';
 import { crearApp } from '../src/app.js';
 import { reiniciarBD } from '../src/bd/reiniciar.js';
+import { hoy } from '../src/validacion.js';
 
 const pool = crearPool(config.testDatabaseUrl);
 const app = crearApp(pool, { zonaHoraria: config.zonaHoraria });
@@ -15,7 +16,7 @@ const nueva = (extra = {}) => ({
   ubicacion_id: 1,
   categoria_id: 2,
   descripcion: 'El HDMI del salón no funciona',
-  fecha_incidencia: new Date().toLocaleDateString('en-CA', { timeZone: config.zonaHoraria }),
+  fecha_incidencia: hoy(config.zonaHoraria),
   ...extra,
 });
 const crear = async (extra) => (await api().post('/api/incidencias').send(nueva(extra))).body;
@@ -47,6 +48,29 @@ test('los folios son consecutivos', async () => {
   const b = await crear();
   assert.match(a.folio, /-0001$/);
   assert.match(b.folio, /-0002$/);
+});
+
+test('POST rechaza datos incompletos con detalle por campo (400)', async () => {
+  const { body } = await api().post('/api/incidencias').send({ descripcion: 'corta' }).expect(400);
+  assert.equal(body.error.codigo, 'validacion');
+  assert.ok(body.error.detalles.ubicacion_id);
+  assert.ok(body.error.detalles.descripcion);
+});
+
+test('POST rechaza fecha futura', async () => {
+  const { body } = await api().post('/api/incidencias').send(nueva({ fecha_incidencia: '2999-01-01' })).expect(400);
+  assert.ok(body.error.detalles.fecha_incidencia);
+});
+
+test('POST rechaza ubicación o categoría inexistente (422)', async () => {
+  const { body } = await api().post('/api/incidencias').send(nueva({ ubicacion_id: 999, categoria_id: 999 })).expect(422);
+  assert.equal(body.error.codigo, 'catalogo_invalido');
+  assert.ok(body.error.detalles.ubicacion_id && body.error.detalles.categoria_id);
+});
+
+test('POST rechaza ubicación inactiva', async () => {
+  await pool.query('UPDATE ubicaciones SET activa = false WHERE id = 1');
+  await api().post('/api/incidencias').send(nueva()).expect(422);
 });
 
 test('POST con JSON roto devuelve 400', async () => {
