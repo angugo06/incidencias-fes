@@ -3,6 +3,7 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { rutasCatalogos } from './rutas/catalogos.js';
 
 const CLIENT_DIST = fileURLToPath(new URL('../../client/dist', import.meta.url));
 
@@ -14,6 +15,7 @@ export function crearApp(pool, opciones = { zonaHoraria: 'America/Mexico_City' }
     await pool.query('SELECT 1');
     res.json({ ok: true });
   });
+  app.use('/api/catalogos', rutasCatalogos(pool));
 
   // Producción: sirve el cliente compilado (npm run build) si existe
   if (fs.existsSync(CLIENT_DIST)) {
