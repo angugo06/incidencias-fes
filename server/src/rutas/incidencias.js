@@ -1,0 +1,98 @@
+// Rutas de /api/incidencias: registrar, listar.
+import { Router } from 'express';
+import { ErrorApi } from '../errores.js';
+import { hoy, validarNuevaIncidencia } from '../validacion.js';
+
+const LIMITE_LISTA = 200;
+
+// Columnas comunes de listado y detalle
+const SELECT_BASE = `
+  SELECT i.id, i.folio, i.descripcion, i.estado, i.fecha_incidencia, i.creada_en, i.actualizada_en,
+         u.id AS ubicacion_id, u.nombre AS ubicacion,
+         c.id AS categoria_id, c.clave AS categoria_clave, c.nombre AS categoria,
+         r.id AS responsable_id, r.nombre AS responsable
+    FROM incidencias i
+    JOIN ubicaciones u ON u.id = i.ubicacion_id
+    JOIN categorias  c ON c.id = i.categoria_id
+    LEFT JOIN responsables r ON r.id = i.responsable_id`;
+
+function exigirValido({ valor, errores }) {
+  if (Object.keys(errores).length) throw new ErrorApi(400, 'validacion', 'Datos inválidos', errores);
+  return valor;
+}
+
+// Incidencia + línea de tiempo (o null si no existe)
+async function obtenerDetalle(db, id) {
+  const { rows } = await db.query(`${SELECT_BASE} WHERE i.id = $1`, [id]);
+  if (!rows.length) return null;
+  const seg = await db.query(
+    `SELECT s.id, s.tipo, s.estado_anterior, s.estado_nuevo, s.texto, s.creado_en,
+            r.nombre AS responsable
+       FROM seguimiento s LEFT JOIN responsables r ON r.id = s.responsable_id
+      WHERE s.incidencia_id = $1 ORDER BY s.creado_en, s.id`,
+    [id],
+  );
+  const inc = rows[0];
+  return {
+    ...inc,
+    seguimiento: seg.rows,
+  };
+}
+
+// Ejecuta fn dentro de una transacción
+async function enTransaccion(pool, fn) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const out = await fn(client);
+    await client.query('COMMIT');
+    return out;
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+}
+
+export function rutasIncidencias(pool, { zonaHoraria }) {
+  const r = Router();
+
+  // Listar de la más reciente a la más antigua
+  r.get('/', async (req, res) => {
+    const sql = `${SELECT_BASE} ORDER BY i.creada_en DESC, i.id DESC LIMIT ${LIMITE_LISTA}`;
+    const { rows } = await pool.query(sql);
+    res.json({ total: rows.length, datos: rows });
+  });
+
+  // Registrar
+  r.post('/', async (req, res) => {
+    const d = exigirValido(validarNuevaIncidencia(req.body, hoy(zonaHoraria)));
+    // El catálogo debe existir y la ubicación estar activa
+    const [u, c] = await Promise.all([
+      pool.query('SELECT 1 FROM ubicaciones WHERE id = $1 AND activa', [d.ubicacion_id]),
+      pool.query('SELECT 1 FROM categorias WHERE id = $1', [d.categoria_id]),
+    ]);
+    const detalles = {};
+    if (!u.rowCount) detalles.ubicacion_id = 'La ubicación no existe o está inactiva';
+    if (!c.rowCount) detalles.categoria_id = 'La categoría no existe';
+    if (Object.keys(detalles).length) throw new ErrorApi(422, 'catalogo_invalido', 'Catálogo inválido', detalles);
+
+    const id = await enTransaccion(pool, async (client) => {
+      const ins = await client.query(
+        `INSERT INTO incidencias (ubicacion_id, categoria_id, descripcion, fecha_incidencia)
+         VALUES ($1,$2,$3,$4) RETURNING id`,
+        [d.ubicacion_id, d.categoria_id, d.descripcion, d.fecha_incidencia],
+      );
+      await client.query(
+        `INSERT INTO seguimiento (incidencia_id, tipo, estado_nuevo, texto)
+         VALUES ($1,'registro','nueva','Incidencia registrada')`,
+        [ins.rows[0].id],
+      );
+      return ins.rows[0].id;
+    });
+    res.status(201).json(await obtenerDetalle(pool, id));
+  });
+
+  return r;
+}
