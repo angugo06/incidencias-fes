@@ -1,5 +1,7 @@
 // Rutas de /api/incidencias: registrar.
 import { Router } from 'express';
+import { ErrorApi } from '../errores.js';
+import { hoy, validarNuevaIncidencia } from '../validacion.js';
 
 // Columnas comunes de listado y detalle
 const SELECT_BASE = `
@@ -11,6 +13,11 @@ const SELECT_BASE = `
     JOIN ubicaciones u ON u.id = i.ubicacion_id
     JOIN categorias  c ON c.id = i.categoria_id
     LEFT JOIN responsables r ON r.id = i.responsable_id`;
+
+function exigirValido({ valor, errores }) {
+  if (Object.keys(errores).length) throw new ErrorApi(400, 'validacion', 'Datos inválidos', errores);
+  return valor;
+}
 
 // Incidencia + línea de tiempo (o null si no existe)
 async function obtenerDetalle(db, id) {
@@ -51,7 +58,17 @@ export function rutasIncidencias(pool, { zonaHoraria }) {
 
   // Registrar
   r.post('/', async (req, res) => {
-    const d = req.body;
+    const d = exigirValido(validarNuevaIncidencia(req.body, hoy(zonaHoraria)));
+    // El catálogo debe existir y la ubicación estar activa
+    const [u, c] = await Promise.all([
+      pool.query('SELECT 1 FROM ubicaciones WHERE id = $1 AND activa', [d.ubicacion_id]),
+      pool.query('SELECT 1 FROM categorias WHERE id = $1', [d.categoria_id]),
+    ]);
+    const detalles = {};
+    if (!u.rowCount) detalles.ubicacion_id = 'La ubicación no existe o está inactiva';
+    if (!c.rowCount) detalles.categoria_id = 'La categoría no existe';
+    if (Object.keys(detalles).length) throw new ErrorApi(422, 'catalogo_invalido', 'Catálogo inválido', detalles);
+
     const id = await enTransaccion(pool, async (client) => {
       const ins = await client.query(
         `INSERT INTO incidencias (ubicacion_id, categoria_id, descripcion, fecha_incidencia)
