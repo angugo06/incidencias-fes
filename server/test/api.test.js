@@ -88,6 +88,19 @@ test('GET lista de la más reciente a la más antigua', async () => {
   assert.ok(body.datos[0].ubicacion && body.datos[0].categoria);
 });
 
+// ---- Detalle (HU-05)
+test('GET detalle incluye seguimiento', async () => {
+  const a = await crear();
+  const { body } = await api().get(`/api/incidencias/${a.id}`).expect(200);
+  assert.equal(body.folio, a.folio);
+  assert.ok(Array.isArray(body.seguimiento));
+});
+
+test('GET detalle: 404 si no existe y 400 si el id no es válido', async () => {
+  await api().get('/api/incidencias/999').expect(404);
+  await api().get('/api/incidencias/abc').expect(400);
+});
+
 test('ruta /api desconocida devuelve 404 JSON', async () => {
   const { body } = await api().get('/api/nada').expect(404);
   assert.equal(body.error.codigo, 'ruta_no_encontrada');
