@@ -1,0 +1,31 @@
+# Respaldo manual: cierra los issues que sigan abiertos en el milestone de un sprint.
+# Lo normal es que el PR del sprint los cierre con "Closes #N"; esto cubre lo que se haya quedado.
+# Uso: pestaña Actions > "Cerrar sprint" > Run workflow.
+name: Cerrar sprint
+
+on:
+  workflow_dispatch:
+    inputs:
+      sprint:
+        description: "Sprint a cerrar"
+        required: true
+        type: choice
+        options: ["1", "2", "3"]
+
+permissions:
+  issues: write
+
+jobs:
+  cerrar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cerrar issues del milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          N: ${{ inputs.sprint }}
+        run: |
+          echo "Cerrando issues abiertos del milestone Sprint $N"
+          for i in $(gh issue list --milestone "Sprint $N" --state open --limit 200 --json number --jq '.[].number'); do
+            gh issue close "$i" --reason completed --comment "Sprint $N cerrado en la revisión."
+          done
