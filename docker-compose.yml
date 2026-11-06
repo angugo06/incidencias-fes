@@ -1,0 +1,17 @@
+# Solo levanta PostgreSQL 16; API y cliente corren con npm (ver README).
+services:
+  db:
+    image: postgres:16
+    container_name: incidencias-db
+    environment:
+      POSTGRES_USER: incidencias
+      POSTGRES_PASSWORD: incidencias
+      POSTGRES_DB: incidencias
+    ports:
+      - "5432:5432"
+    volumes:
+      - incidencias_datos:/var/lib/postgresql/data
+      # Crea también la BD de pruebas en el primer arranque
+      - ./db/docker-init:/docker-entrypoint-initdb.d:ro
+volumes:
+  incidencias_datos:
