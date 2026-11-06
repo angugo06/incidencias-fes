@@ -78,6 +78,16 @@ test('POST con JSON roto devuelve 400', async () => {
   assert.equal(body.error.codigo, 'json_invalido');
 });
 
+// ---- Listar y filtrar (HU-04/09)
+test('GET lista de la más reciente a la más antigua', async () => {
+  const a = await crear();
+  const b = await crear();
+  const { body } = await api().get('/api/incidencias').expect(200);
+  assert.equal(body.total, 2);
+  assert.deepEqual(body.datos.map((i) => i.folio), [b.folio, a.folio]);
+  assert.ok(body.datos[0].ubicacion && body.datos[0].categoria);
+});
+
 test('ruta /api desconocida devuelve 404 JSON', async () => {
   const { body } = await api().get('/api/nada').expect(404);
   assert.equal(body.error.codigo, 'ruta_no_encontrada');

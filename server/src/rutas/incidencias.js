@@ -1,7 +1,9 @@
-// Rutas de /api/incidencias: registrar.
+// Rutas de /api/incidencias: registrar, listar.
 import { Router } from 'express';
 import { ErrorApi } from '../errores.js';
 import { hoy, validarNuevaIncidencia } from '../validacion.js';
+
+const LIMITE_LISTA = 200;
 
 // Columnas comunes de listado y detalle
 const SELECT_BASE = `
@@ -55,6 +57,13 @@ async function enTransaccion(pool, fn) {
 
 export function rutasIncidencias(pool, { zonaHoraria }) {
   const r = Router();
+
+  // Listar de la más reciente a la más antigua
+  r.get('/', async (req, res) => {
+    const sql = `${SELECT_BASE} ORDER BY i.creada_en DESC, i.id DESC LIMIT ${LIMITE_LISTA}`;
+    const { rows } = await pool.query(sql);
+    res.json({ total: rows.length, datos: rows });
+  });
 
   // Registrar
   r.post('/', async (req, res) => {
