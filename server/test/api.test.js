@@ -89,10 +89,11 @@ test('GET lista de la más reciente a la más antigua', async () => {
 });
 
 // ---- Detalle (HU-05)
-test('GET detalle incluye seguimiento', async () => {
+test('GET detalle incluye seguimiento y transiciones', async () => {
   const a = await crear();
   const { body } = await api().get(`/api/incidencias/${a.id}`).expect(200);
   assert.equal(body.folio, a.folio);
+  assert.deepEqual(body.transiciones_permitidas, []);
   assert.ok(Array.isArray(body.seguimiento));
 });
 
@@ -107,6 +108,7 @@ test('asignar pasa a asignada y deja evento', async () => {
   const { body } = await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 2 }).expect(200);
   assert.equal(body.estado, 'asignada');
   assert.equal(body.responsable_id, 2);
+  assert.deepEqual(body.transiciones_permitidas, ['en_proceso']);
   assert.equal(body.seguimiento.at(-1).tipo, 'asignacion');
 });
 
@@ -124,6 +126,40 @@ test('asignar valida responsable y estado', async () => {
   await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 999 }).expect(422);
   await api().patch('/api/incidencias/999/asignacion').send({ responsable_id: 1 }).expect(404);
   await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 1 }).expect(200);
+  await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'en_proceso' }).expect(200);
+  // en proceso ya no se reasigna
+  const r = await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 2 }).expect(409);
+  assert.equal(r.body.error.codigo, 'estado_no_asignable');
+});
+
+// ---- Cambiar estado (HU-07)
+test('flujo completo hasta resuelta con comentario', async () => {
+  const a = await crear();
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 1 }).expect(200);
+  await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'en_proceso' }).expect(200);
+  const { body } = await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'resuelta', comentario: 'Se cambió el cable' }).expect(200);
+  assert.equal(body.estado, 'resuelta');
+  assert.deepEqual(body.transiciones_permitidas, []);
+  const ultimo = body.seguimiento.at(-1);
+  assert.equal(ultimo.tipo, 'estado');
+  assert.equal(ultimo.estado_anterior, 'en_proceso');
+  assert.equal(ultimo.texto, 'Se cambió el cable');
+});
+
+test('transiciones inválidas devuelven 409 y no cambian nada', async () => {
+  const a = await crear();
+  // nueva -> en_proceso (salto) y nueva -> asignada (debe usarse la asignación)
+  await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'en_proceso' }).expect(409);
+  const r = await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'asignada' }).expect(409);
+  assert.equal(r.body.error.codigo, 'transicion_invalida');
+  const det = (await api().get(`/api/incidencias/${a.id}`)).body;
+  assert.equal(det.estado, 'nueva');
+  assert.equal(det.seguimiento.length, 1);
+});
+
+test('estado desconocido devuelve 400', async () => {
+  const a = await crear();
+  await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'volando' }).expect(400);
 });
 
 test('ruta /api desconocida devuelve 404 JSON', async () => {

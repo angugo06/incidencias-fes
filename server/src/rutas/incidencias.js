@@ -1,8 +1,11 @@
-// Rutas de /api/incidencias: registrar, listar, detalle, asignar.
+// Rutas de /api/incidencias: registrar, listar, detalle, asignar, cambiar estado.
 import { Router } from 'express';
 import { ErrorApi, noEncontrada, conflicto } from '../errores.js';
-import { admiteAsignacion } from '../estados.js';
-import { hoy, validarId, validarNuevaIncidencia, validarAsignacion } from '../validacion.js';
+import { ESTADOS, puedeTransitar, transicionesDesde, admiteAsignacion } from '../estados.js';
+import {
+  hoy, validarId, validarNuevaIncidencia,
+  validarAsignacion, validarCambioEstado,
+} from '../validacion.js';
 
 const LIMITE_LISTA = 200;
 
@@ -29,7 +32,7 @@ function exigirValido({ valor, errores }) {
   return valor;
 }
 
-// Incidencia + línea de tiempo (o null si no existe)
+// Incidencia + línea de tiempo + transiciones permitidas (o null si no existe)
 async function obtenerDetalle(db, id) {
   const { rows } = await db.query(`${SELECT_BASE} WHERE i.id = $1`, [id]);
   if (!rows.length) return null;
@@ -43,6 +46,7 @@ async function obtenerDetalle(db, id) {
   const inc = rows[0];
   return {
     ...inc,
+    transiciones_permitidas: transicionesDesde(inc.estado), // cambios manuales de estado
     puede_asignar: admiteAsignacion(inc.estado),
     seguimiento: seg.rows,
   };
@@ -143,6 +147,29 @@ export function rutasIncidencias(pool, { zonaHoraria }) {
         `INSERT INTO seguimiento (incidencia_id, tipo, estado_anterior, estado_nuevo, responsable_id, texto)
          VALUES ($1,'asignacion',$2,'asignada',$3,$4)`,
         [id, actual.estado, responsable_id, `Asignada a ${resp.rows[0].nombre}`],
+      );
+    });
+    res.json(await obtenerDetalle(pool, id));
+  });
+
+  // Cambiar estado (solo transiciones permitidas)
+  r.patch('/:id/estado', async (req, res) => {
+    const id = leerId(req);
+    const { estado, comentario } = exigirValido(validarCambioEstado(req.body, ESTADOS));
+    await enTransaccion(pool, async (client) => {
+      const actual = await bloquear(client, id);
+      if (!puedeTransitar(actual.estado, estado))
+        throw conflicto(
+          'transicion_invalida',
+          estado === 'asignada'
+            ? 'Para asignar usa la asignación de responsable'
+            : `No se puede pasar de «${actual.estado}» a «${estado}»`,
+        );
+      await client.query('UPDATE incidencias SET estado = $2, actualizada_en = now() WHERE id = $1', [id, estado]);
+      await client.query(
+        `INSERT INTO seguimiento (incidencia_id, tipo, estado_anterior, estado_nuevo, texto)
+         VALUES ($1,'estado',$2,$3,$4)`,
+        [id, actual.estado, estado, comentario],
       );
     });
     res.json(await obtenerDetalle(pool, id));
