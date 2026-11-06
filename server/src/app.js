@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { rutasCatalogos } from './rutas/catalogos.js';
+import { rutasIncidencias } from './rutas/incidencias.js';
+import { manejarErrores, ErrorApi } from './errores.js';
 
 const CLIENT_DIST = fileURLToPath(new URL('../../client/dist', import.meta.url));
 
@@ -16,6 +18,9 @@ export function crearApp(pool, opciones = { zonaHoraria: 'America/Mexico_City' }
     res.json({ ok: true });
   });
   app.use('/api/catalogos', rutasCatalogos(pool));
+  app.use('/api/incidencias', rutasIncidencias(pool, opciones));
+  // Rutas /api desconocidas -> 404 JSON
+  app.use('/api', (req, res, next) => next(new ErrorApi(404, 'ruta_no_encontrada', 'Ruta no encontrada')));
 
   // Producción: sirve el cliente compilado (npm run build) si existe
   if (fs.existsSync(CLIENT_DIST)) {
@@ -23,5 +28,6 @@ export function crearApp(pool, opciones = { zonaHoraria: 'America/Mexico_City' }
     app.get('/{*ruta}', (req, res) => res.sendFile(path.join(CLIENT_DIST, 'index.html')));
   }
 
+  app.use(manejarErrores);
   return app;
 }
