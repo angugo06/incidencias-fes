@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  validarNuevaIncidencia, validarId, esFechaValida, hoy,
+  validarNuevaIncidencia, validarId, esFechaValida, validarComentario, hoy,
 } from '../src/validacion.js';
 
 const base = { ubicacion_id: 1, categoria_id: 2, descripcion: 'El HDMI no funciona', fecha_incidencia: '2026-11-03' };
@@ -33,6 +33,10 @@ test('fecha futura o inexistente es inválida', () => {
 test('ids: solo enteros positivos', () => {
   assert.equal(validarId('12'), 12);
   for (const x of ['0', '-1', 'abc', '1.5', '']) assert.equal(validarId(x), null);
+});
+
+test('comentario vacío es inválido', () => {
+  assert.ok(validarComentario({ texto: '   ' }).errores.texto);
 });
 
 test('hoy() devuelve formato AAAA-MM-DD', () => {
