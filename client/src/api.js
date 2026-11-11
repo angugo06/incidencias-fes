@@ -33,4 +33,5 @@ export const api = {
   listar: () => pedir('GET', '/incidencias'),
   detalle: (id) => pedir('GET', `/incidencias/${id}`),
   registrar: (datos) => pedir('POST', '/incidencias', datos),
+  asignar: (id, responsable_id) => pedir('PATCH', `/incidencias/${id}/asignacion`, { responsable_id }),
 };
