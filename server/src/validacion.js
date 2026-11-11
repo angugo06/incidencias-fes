@@ -18,6 +18,10 @@ export function esFechaValida(texto) {
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === texto;
 }
 
+export function validarId(texto) {
+  return /^\d+$/.test(texto) && Number(texto) > 0 ? Number(texto) : null;
+}
+
 export function validarNuevaIncidencia(body = {}, fechaHoy = hoy()) {
   const errores = {};
   const { ubicacion_id, categoria_id, fecha_incidencia } = body;

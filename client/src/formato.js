@@ -15,6 +15,14 @@ export function fechaCorta(valor) {
   return `${d}/${m}/${a}`;
 }
 
+// ISO con hora -> "04/11/2026 15:30" (hora local del navegador)
+export function fechaHora(valor) {
+  const d = new Date(valor);
+  if (Number.isNaN(d.getTime())) return '';
+  const p = (n) => String(n).padStart(2, '0');
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 // Fecha de hoy local en formato AAAA-MM-DD (para el input date)
 export function hoyLocal(ahora = new Date()) {
   const p = (n) => String(n).padStart(2, '0');

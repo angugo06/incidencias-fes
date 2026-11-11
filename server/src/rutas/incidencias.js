@@ -1,7 +1,7 @@
-// Rutas de /api/incidencias: registrar, listar.
+// Rutas de /api/incidencias: registrar, listar, detalle.
 import { Router } from 'express';
-import { ErrorApi } from '../errores.js';
-import { hoy, validarNuevaIncidencia } from '../validacion.js';
+import { ErrorApi, noEncontrada } from '../errores.js';
+import { hoy, validarId, validarNuevaIncidencia } from '../validacion.js';
 
 const LIMITE_LISTA = 200;
 
@@ -15,6 +15,13 @@ const SELECT_BASE = `
     JOIN ubicaciones u ON u.id = i.ubicacion_id
     JOIN categorias  c ON c.id = i.categoria_id
     LEFT JOIN responsables r ON r.id = i.responsable_id`;
+
+// Id de la URL -> número, o 400
+function leerId(req) {
+  const id = validarId(req.params.id);
+  if (!id) throw new ErrorApi(400, 'id_invalido', 'El id debe ser un entero positivo');
+  return id;
+}
 
 function exigirValido({ valor, errores }) {
   if (Object.keys(errores).length) throw new ErrorApi(400, 'validacion', 'Datos inválidos', errores);
@@ -92,6 +99,13 @@ export function rutasIncidencias(pool, { zonaHoraria }) {
       return ins.rows[0].id;
     });
     res.status(201).json(await obtenerDetalle(pool, id));
+  });
+
+  // Detalle + seguimiento
+  r.get('/:id', async (req, res) => {
+    const det = await obtenerDetalle(pool, leerId(req));
+    if (!det) throw noEncontrada();
+    res.json(det);
   });
 
   return r;

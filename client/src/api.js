@@ -31,5 +31,6 @@ async function pedir(metodo, ruta, cuerpo) {
 export const api = {
   catalogos: () => pedir('GET', '/catalogos'),
   listar: () => pedir('GET', '/incidencias'),
+  detalle: (id) => pedir('GET', `/incidencias/${id}`),
   registrar: (datos) => pedir('POST', '/incidencias', datos),
 };

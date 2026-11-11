@@ -1,5 +1,6 @@
 // Formulario de registro: ubicación, categoría, descripción y fecha.
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { hoyLocal } from '../formato.js';
 import Aviso from '../componentes/Aviso.jsx';
@@ -18,7 +19,7 @@ export function validar(f, hoy = hoyLocal()) {
 }
 
 export default function NuevaIncidencia() {
-  const [creada, setCreada] = useState(null);
+  const navegar = useNavigate();
   const [catalogos, setCatalogos] = useState(null);
   const [form, setForm] = useState({ ubicacion_id: '', categoria_id: '', descripcion: '', fecha_incidencia: hoyLocal() });
   const [errores, setErrores] = useState({});
@@ -36,18 +37,17 @@ export default function NuevaIncidencia() {
     const e = validar(form);
     setErrores(e);
     setErrorGeneral('');
-    setCreada(null);
     if (Object.keys(e).length) return;
     setEnviando(true);
     try {
-      const registrada = await api.registrar({
+      const creada = await api.registrar({
         ubicacion_id: Number(form.ubicacion_id),
         categoria_id: Number(form.categoria_id),
         descripcion: form.descripcion.trim(),
         fecha_incidencia: form.fecha_incidencia,
       });
-      setCreada(registrada);
-      setForm({ ubicacion_id: '', categoria_id: '', descripcion: '', fecha_incidencia: hoyLocal() });
+      // El detalle muestra la confirmación con el folio
+      navegar(`/incidencias/${creada.id}`, { state: { creada: true } });
     } catch (err) {
       setErrores(err.detalles ?? {});
       setErrorGeneral(err.message);
@@ -60,7 +60,6 @@ export default function NuevaIncidencia() {
     <section>
       <h1>Registrar incidencia</h1>
       <Aviso tipo="error">{errorGeneral}</Aviso>
-      <Aviso tipo="ok">{creada && `Incidencia registrada con el folio ${creada.folio}.`}</Aviso>
       <form onSubmit={enviar} noValidate className="formulario">
         <label>
           Ubicación

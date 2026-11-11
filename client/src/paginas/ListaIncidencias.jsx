@@ -37,7 +37,7 @@ export default function ListaIncidencias() {
             <tbody>
               {lista.map((i) => (
                 <tr key={i.id}>
-                  <td>{i.folio}</td>
+                  <td><Link to={`/incidencias/${i.id}`}>{i.folio}</Link></td>
                   <td>{i.ubicacion}</td>
                   <td>{i.categoria}</td>
                   <td>{resumir(i.descripcion)}</td>
