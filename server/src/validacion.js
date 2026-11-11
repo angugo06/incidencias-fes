@@ -3,6 +3,7 @@
 
 export const DESCRIPCION_MIN = 10;
 export const DESCRIPCION_MAX = 1000;
+export const COMENTARIO_MAX = 500;
 
 const esEnteroPositivo = (v) => Number.isInteger(v) && v > 0;
 
@@ -45,4 +46,12 @@ export function validarAsignacion(body = {}) {
   const errores = {};
   if (!esEnteroPositivo(body.responsable_id)) errores.responsable_id = 'Elige un responsable';
   return { valor: { responsable_id: body.responsable_id }, errores };
+}
+
+export function validarCambioEstado(body = {}, estadosValidos) {
+  const errores = {};
+  if (!estadosValidos.includes(body.estado)) errores.estado = 'Estado no válido';
+  const comentario = typeof body.comentario === 'string' ? body.comentario.trim() : '';
+  if (comentario.length > COMENTARIO_MAX) errores.comentario = `Máximo ${COMENTARIO_MAX} caracteres`;
+  return { valor: { estado: body.estado, comentario: comentario || null }, errores };
 }

@@ -7,6 +7,11 @@ export const ETIQUETA_ESTADO = {
   resuelta: 'Resuelta',
 };
 
+export const ACCION_ESTADO = {
+  en_proceso: 'Iniciar trabajo',
+  resuelta: 'Marcar como resuelta',
+};
+
 // "2026-11-04" o ISO -> "04/11/2026" (sin desfase de zona para fechas puras)
 export function fechaCorta(valor) {
   if (!valor) return '';

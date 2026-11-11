@@ -1,8 +1,8 @@
-// Detalle: datos y asignación.
+// Detalle: datos, asignación y cambio de estado.
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { api } from '../api.js';
-import { fechaCorta, fechaHora } from '../formato.js';
+import { ACCION_ESTADO, ETIQUETA_ESTADO, fechaCorta, fechaHora } from '../formato.js';
 import InsigniaEstado from '../componentes/InsigniaEstado.jsx';
 import Aviso from '../componentes/Aviso.jsx';
 
@@ -14,6 +14,7 @@ export default function DetalleIncidencia() {
   const [error, setError] = useState('');
   const [exito, setExito] = useState(state?.creada ? 'Incidencia registrada correctamente.' : '');
   const [responsable, setResponsable] = useState('');
+  const [notaEstado, setNotaEstado] = useState('');
 
   const cargar = useCallback(() => {
     api.detalle(id).then(setInc).catch((e) => setError(e.message));
@@ -70,6 +71,21 @@ export default function DetalleIncidencia() {
           </select>
           <button className="boton" disabled={!responsable}>Asignar</button>
         </form>
+      )}
+
+      {inc.transiciones_permitidas.length > 0 && (
+        <div className="panel">
+          <h2>Cambiar estado</h2>
+          <input type="text" placeholder="Nota (opcional)" maxLength={500} value={notaEstado}
+            onChange={(e) => setNotaEstado(e.target.value)} aria-label="Nota del cambio de estado" />
+          {inc.transiciones_permitidas.map((destino) => (
+            <button key={destino} className="boton" type="button"
+              onClick={() => ejecutar(() => api.cambiarEstado(inc.id, destino, notaEstado),
+                `Estado actualizado a «${ETIQUETA_ESTADO[destino]}».`, () => setNotaEstado(''))}>
+              {ACCION_ESTADO[destino] ?? ETIQUETA_ESTADO[destino]}
+            </button>
+          ))}
+        </div>
       )}
 
     </section>
