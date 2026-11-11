@@ -3,6 +3,7 @@
 
 export const DESCRIPCION_MIN = 10;
 export const DESCRIPCION_MAX = 1000;
+export const COMENTARIO_MAX = 500;
 
 const esEnteroPositivo = (v) => Number.isInteger(v) && v > 0;
 
@@ -16,6 +17,10 @@ export function esFechaValida(texto) {
   if (typeof texto !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(texto)) return false;
   const d = new Date(`${texto}T00:00:00Z`);
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === texto;
+}
+
+export function validarId(texto) {
+  return /^\d+$/.test(texto) && Number(texto) > 0 ? Number(texto) : null;
 }
 
 export function validarNuevaIncidencia(body = {}, fechaHoy = hoy()) {
@@ -35,4 +40,18 @@ export function validarNuevaIncidencia(body = {}, fechaHoy = hoy()) {
   else if (fecha_incidencia > fechaHoy) errores.fecha_incidencia = 'La fecha no puede ser futura';
 
   return { valor: { ubicacion_id, categoria_id, descripcion, fecha_incidencia }, errores };
+}
+
+export function validarAsignacion(body = {}) {
+  const errores = {};
+  if (!esEnteroPositivo(body.responsable_id)) errores.responsable_id = 'Elige un responsable';
+  return { valor: { responsable_id: body.responsable_id }, errores };
+}
+
+export function validarCambioEstado(body = {}, estadosValidos) {
+  const errores = {};
+  if (!estadosValidos.includes(body.estado)) errores.estado = 'Estado no válido';
+  const comentario = typeof body.comentario === 'string' ? body.comentario.trim() : '';
+  if (comentario.length > COMENTARIO_MAX) errores.comentario = `Máximo ${COMENTARIO_MAX} caracteres`;
+  return { valor: { estado: body.estado, comentario: comentario || null }, errores };
 }

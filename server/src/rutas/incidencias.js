@@ -1,7 +1,11 @@
-// Rutas de /api/incidencias: registrar, listar.
+// Rutas de /api/incidencias: registrar, listar, detalle, asignar, cambiar estado.
 import { Router } from 'express';
-import { ErrorApi } from '../errores.js';
-import { hoy, validarNuevaIncidencia } from '../validacion.js';
+import { ErrorApi, noEncontrada, conflicto } from '../errores.js';
+import { ESTADOS, puedeTransitar, transicionesDesde, admiteAsignacion } from '../estados.js';
+import {
+  hoy, validarId, validarNuevaIncidencia,
+  validarAsignacion, validarCambioEstado,
+} from '../validacion.js';
 
 const LIMITE_LISTA = 200;
 
@@ -16,12 +20,19 @@ const SELECT_BASE = `
     JOIN categorias  c ON c.id = i.categoria_id
     LEFT JOIN responsables r ON r.id = i.responsable_id`;
 
+// Id de la URL -> número, o 400
+function leerId(req) {
+  const id = validarId(req.params.id);
+  if (!id) throw new ErrorApi(400, 'id_invalido', 'El id debe ser un entero positivo');
+  return id;
+}
+
 function exigirValido({ valor, errores }) {
   if (Object.keys(errores).length) throw new ErrorApi(400, 'validacion', 'Datos inválidos', errores);
   return valor;
 }
 
-// Incidencia + línea de tiempo (o null si no existe)
+// Incidencia + línea de tiempo + transiciones permitidas (o null si no existe)
 async function obtenerDetalle(db, id) {
   const { rows } = await db.query(`${SELECT_BASE} WHERE i.id = $1`, [id]);
   if (!rows.length) return null;
@@ -35,6 +46,8 @@ async function obtenerDetalle(db, id) {
   const inc = rows[0];
   return {
     ...inc,
+    transiciones_permitidas: transicionesDesde(inc.estado), // cambios manuales de estado
+    puede_asignar: admiteAsignacion(inc.estado),
     seguimiento: seg.rows,
   };
 }
@@ -53,6 +66,16 @@ async function enTransaccion(pool, fn) {
   } finally {
     client.release();
   }
+}
+
+// Bloquea la fila para evitar cambios concurrentes
+async function bloquear(client, id) {
+  const { rows } = await client.query(
+    'SELECT id, estado, responsable_id FROM incidencias WHERE id = $1 FOR UPDATE',
+    [id],
+  );
+  if (!rows.length) throw noEncontrada();
+  return rows[0];
 }
 
 export function rutasIncidencias(pool, { zonaHoraria }) {
@@ -92,6 +115,64 @@ export function rutasIncidencias(pool, { zonaHoraria }) {
       return ins.rows[0].id;
     });
     res.status(201).json(await obtenerDetalle(pool, id));
+  });
+
+  // Detalle + seguimiento
+  r.get('/:id', async (req, res) => {
+    const det = await obtenerDetalle(pool, leerId(req));
+    if (!det) throw noEncontrada();
+    res.json(det);
+  });
+
+  // Asignar (o reasignar) responsable
+  r.patch('/:id/asignacion', async (req, res) => {
+    const id = leerId(req);
+    const { responsable_id } = exigirValido(validarAsignacion(req.body));
+    await enTransaccion(pool, async (client) => {
+      const actual = await bloquear(client, id);
+      if (!admiteAsignacion(actual.estado))
+        throw conflicto('estado_no_asignable', 'Solo se asigna una incidencia nueva o asignada');
+      if (actual.responsable_id === responsable_id)
+        throw conflicto('sin_cambios', 'La incidencia ya está asignada a esa persona');
+      const resp = await client.query('SELECT nombre FROM responsables WHERE id = $1 AND activo', [responsable_id]);
+      if (!resp.rowCount)
+        throw new ErrorApi(422, 'catalogo_invalido', 'Catálogo inválido', {
+          responsable_id: 'El responsable no existe o está inactivo',
+        });
+      await client.query(
+        `UPDATE incidencias SET estado = 'asignada', responsable_id = $2, actualizada_en = now() WHERE id = $1`,
+        [id, responsable_id],
+      );
+      await client.query(
+        `INSERT INTO seguimiento (incidencia_id, tipo, estado_anterior, estado_nuevo, responsable_id, texto)
+         VALUES ($1,'asignacion',$2,'asignada',$3,$4)`,
+        [id, actual.estado, responsable_id, `Asignada a ${resp.rows[0].nombre}`],
+      );
+    });
+    res.json(await obtenerDetalle(pool, id));
+  });
+
+  // Cambiar estado (solo transiciones permitidas)
+  r.patch('/:id/estado', async (req, res) => {
+    const id = leerId(req);
+    const { estado, comentario } = exigirValido(validarCambioEstado(req.body, ESTADOS));
+    await enTransaccion(pool, async (client) => {
+      const actual = await bloquear(client, id);
+      if (!puedeTransitar(actual.estado, estado))
+        throw conflicto(
+          'transicion_invalida',
+          estado === 'asignada'
+            ? 'Para asignar usa la asignación de responsable'
+            : `No se puede pasar de «${actual.estado}» a «${estado}»`,
+        );
+      await client.query('UPDATE incidencias SET estado = $2, actualizada_en = now() WHERE id = $1', [id, estado]);
+      await client.query(
+        `INSERT INTO seguimiento (incidencia_id, tipo, estado_anterior, estado_nuevo, texto)
+         VALUES ($1,'estado',$2,$3,$4)`,
+        [id, actual.estado, estado, comentario],
+      );
+    });
+    res.json(await obtenerDetalle(pool, id));
   });
 
   return r;
