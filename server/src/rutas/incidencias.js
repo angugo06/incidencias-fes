@@ -3,8 +3,8 @@ import { Router } from 'express';
 import { ErrorApi, noEncontrada, conflicto } from '../errores.js';
 import { ESTADOS, puedeTransitar, transicionesDesde, admiteAsignacion } from '../estados.js';
 import {
-  hoy, validarId, validarNuevaIncidencia,
-  validarAsignacion, validarCambioEstado, validarComentario,
+  hoy, validarId, validarNuevaIncidencia, validarAsignacion,
+  validarCambioEstado, validarComentario, validarFiltros,
 } from '../validacion.js';
 
 const LIMITE_LISTA = 200;
@@ -81,10 +81,16 @@ async function bloquear(client, id) {
 export function rutasIncidencias(pool, { zonaHoraria }) {
   const r = Router();
 
-  // Listar de la más reciente a la más antigua
+  // Listar con filtros opcionales ?estado=&categoria=
   r.get('/', async (req, res) => {
-    const sql = `${SELECT_BASE} ORDER BY i.creada_en DESC, i.id DESC LIMIT ${LIMITE_LISTA}`;
-    const { rows } = await pool.query(sql);
+    const f = exigirValido(validarFiltros(req.query, ESTADOS));
+    const params = [];
+    const where = [];
+    if (f.estado) { params.push(f.estado); where.push(`i.estado = $${params.length}`); }
+    if (f.categoria) { params.push(f.categoria); where.push(`c.clave = $${params.length}`); }
+    const sql = `${SELECT_BASE} ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
+                 ORDER BY i.creada_en DESC, i.id DESC LIMIT ${LIMITE_LISTA}`;
+    const { rows } = await pool.query(sql, params);
     res.json({ total: rows.length, datos: rows });
   });
 

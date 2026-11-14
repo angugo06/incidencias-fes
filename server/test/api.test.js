@@ -88,6 +88,27 @@ test('GET lista de la más reciente a la más antigua', async () => {
   assert.ok(body.datos[0].ubicacion && body.datos[0].categoria);
 });
 
+test('filtros por estado y por categoría, solos y combinados', async () => {
+  const a = await crear({ categoria_id: 1 }); // electrica
+  await crear({ categoria_id: 2 }); // audiovisual
+  await api().patch(`/api/incidencias/${a.id}/asignacion`).send({ responsable_id: 1 }).expect(200);
+
+  const porEstado = (await api().get('/api/incidencias?estado=asignada').expect(200)).body;
+  assert.equal(porEstado.total, 1);
+  const porCat = (await api().get('/api/incidencias?categoria=audiovisual').expect(200)).body;
+  assert.equal(porCat.total, 1);
+  assert.equal(porCat.datos[0].estado, 'nueva');
+  const combo = (await api().get('/api/incidencias?estado=nueva&categoria=electrica').expect(200)).body;
+  assert.equal(combo.total, 0);
+  const vacio = (await api().get('/api/incidencias?estado=&categoria=').expect(200)).body;
+  assert.equal(vacio.total, 2);
+});
+
+test('filtros inválidos devuelven 400', async () => {
+  await api().get('/api/incidencias?estado=cualquiera').expect(400);
+  await api().get('/api/incidencias?categoria=a;b').expect(400);
+});
+
 // ---- Detalle (HU-05)
 test('GET detalle incluye seguimiento y transiciones', async () => {
   const a = await crear();

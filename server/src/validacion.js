@@ -63,3 +63,14 @@ export function validarComentario(body = {}) {
   else if (texto.length > COMENTARIO_MAX) errores.texto = `Máximo ${COMENTARIO_MAX} caracteres`;
   return { valor: { texto }, errores };
 }
+
+// Filtros del listado: solo estado y categoría (clave)
+export function validarFiltros(query = {}, estadosValidos) {
+  const errores = {};
+  const { estado, categoria } = query;
+  if (estado !== undefined && estado !== '' && !estadosValidos.includes(estado))
+    errores.estado = 'Estado no válido';
+  if (categoria !== undefined && categoria !== '' && !/^[a-z_]{1,30}$/.test(categoria))
+    errores.categoria = 'Categoría no válida';
+  return { valor: { estado: estado || null, categoria: categoria || null }, errores };
+}

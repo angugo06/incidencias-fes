@@ -28,9 +28,17 @@ async function pedir(metodo, ruta, cuerpo) {
   return datos;
 }
 
+// Convierte {estado, categoria} en query string, omitiendo vacíos
+const qs = (filtros = {}) => {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(filtros)) if (v) p.set(k, v);
+  const s = p.toString();
+  return s ? `?${s}` : '';
+};
+
 export const api = {
   catalogos: () => pedir('GET', '/catalogos'),
-  listar: () => pedir('GET', '/incidencias'),
+  listar: (filtros) => pedir('GET', `/incidencias${qs(filtros)}`),
   detalle: (id) => pedir('GET', `/incidencias/${id}`),
   registrar: (datos) => pedir('POST', '/incidencias', datos),
   asignar: (id, responsable_id) => pedir('PATCH', `/incidencias/${id}/asignacion`, { responsable_id }),
