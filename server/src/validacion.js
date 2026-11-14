@@ -55,3 +55,22 @@ export function validarCambioEstado(body = {}, estadosValidos) {
   if (comentario.length > COMENTARIO_MAX) errores.comentario = `Máximo ${COMENTARIO_MAX} caracteres`;
   return { valor: { estado: body.estado, comentario: comentario || null }, errores };
 }
+
+export function validarComentario(body = {}) {
+  const errores = {};
+  const texto = typeof body.texto === 'string' ? body.texto.trim() : '';
+  if (!texto) errores.texto = 'Escribe el comentario';
+  else if (texto.length > COMENTARIO_MAX) errores.texto = `Máximo ${COMENTARIO_MAX} caracteres`;
+  return { valor: { texto }, errores };
+}
+
+// Filtros del listado: solo estado y categoría (clave)
+export function validarFiltros(query = {}, estadosValidos) {
+  const errores = {};
+  const { estado, categoria } = query;
+  if (estado !== undefined && estado !== '' && !estadosValidos.includes(estado))
+    errores.estado = 'Estado no válido';
+  if (categoria !== undefined && categoria !== '' && !/^[a-z_]{1,30}$/.test(categoria))
+    errores.categoria = 'Categoría no válida';
+  return { valor: { estado: estado || null, categoria: categoria || null }, errores };
+}

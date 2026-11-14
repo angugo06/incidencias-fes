@@ -5,7 +5,7 @@
 **Integrante responsable:** [@Diegovivas12](https://github.com/Diegovivas12)
 **Compromiso:** 10 puntos · 20 h de 21 h de capacidad (7 h/día).
 
-> Estado: **Por hacer**. El código de este sprint se agrega en su rama `sprint-3`.
+> Estado: **Hecho**. El sprint se cerró con sus pruebas en verde (ver `contexto/ESTADO.md`).
 
 | Historia | Issue | Puntos | Horas | Inicio | Fin |
 |---|---|---:|---:|---|---|
@@ -51,11 +51,11 @@ Closes #57
 
 | Tarea | Issue | Área | Horas | Estado |
 |---|---|---|---:|---|
-| HU-08-T1 POST /api/incidencias/:id/comentarios | [#44](https://github.com/angugo06/incidencias-fes/issues/44) | Backend | 1 | Por hacer |
-| HU-08-T2 El detalle devuelve la línea de tiempo ordenada | [#45](https://github.com/angugo06/incidencias-fes/issues/45) | Backend | 1 | Por hacer |
-| HU-08-T3 Componente de línea de tiempo | [#46](https://github.com/angugo06/incidencias-fes/issues/46) | Frontend | 2 | Por hacer |
-| HU-08-T4 Formulario de comentario | [#47](https://github.com/angugo06/incidencias-fes/issues/47) | Frontend | 1 | Por hacer |
-| HU-08-T5 Pruebas de comentarios y orden | [#48](https://github.com/angugo06/incidencias-fes/issues/48) | Pruebas | 1 | Por hacer |
+| HU-08-T1 POST /api/incidencias/:id/comentarios | [#44](https://github.com/angugo06/incidencias-fes/issues/44) | Backend | 1 | Hecho |
+| HU-08-T2 El detalle devuelve la línea de tiempo ordenada | [#45](https://github.com/angugo06/incidencias-fes/issues/45) | Backend | 1 | Hecho |
+| HU-08-T3 Componente de línea de tiempo | [#46](https://github.com/angugo06/incidencias-fes/issues/46) | Frontend | 2 | Hecho |
+| HU-08-T4 Formulario de comentario | [#47](https://github.com/angugo06/incidencias-fes/issues/47) | Frontend | 1 | Hecho |
+| HU-08-T5 Pruebas de comentarios y orden | [#48](https://github.com/angugo06/incidencias-fes/issues/48) | Pruebas | 1 | Hecho |
 
 ## HU-09 — Filtros sencillos por estado y categoría (2 pts, 4 h) · [#10](https://github.com/angugo06/incidencias-fes/issues/10)
 
@@ -69,10 +69,10 @@ Closes #57
 
 | Tarea | Issue | Área | Horas | Estado |
 |---|---|---|---:|---|
-| HU-09-T1 Parámetros estado y categoría en GET /api/incidencias | [#49](https://github.com/angugo06/incidencias-fes/issues/49) | Backend | 1 | Por hacer |
-| HU-09-T2 Controles de filtro en la lista | [#50](https://github.com/angugo06/incidencias-fes/issues/50) | Frontend | 1 | Por hacer |
-| HU-09-T3 Sincronizar filtros con la URL | [#51](https://github.com/angugo06/incidencias-fes/issues/51) | Frontend | 1 | Por hacer |
-| HU-09-T4 Pruebas de combinaciones de filtros | [#52](https://github.com/angugo06/incidencias-fes/issues/52) | Pruebas | 1 | Por hacer |
+| HU-09-T1 Parámetros estado y categoría en GET /api/incidencias | [#49](https://github.com/angugo06/incidencias-fes/issues/49) | Backend | 1 | Hecho |
+| HU-09-T2 Controles de filtro en la lista | [#50](https://github.com/angugo06/incidencias-fes/issues/50) | Frontend | 1 | Hecho |
+| HU-09-T3 Sincronizar filtros con la URL | [#51](https://github.com/angugo06/incidencias-fes/issues/51) | Frontend | 1 | Hecho |
+| HU-09-T4 Pruebas de combinaciones de filtros | [#52](https://github.com/angugo06/incidencias-fes/issues/52) | Pruebas | 1 | Hecho |
 
 ## HT-02 — Pruebas finales, documentación y cierre (5 pts, 10 h) · [#11](https://github.com/angugo06/incidencias-fes/issues/11)
 
@@ -86,8 +86,8 @@ Closes #57
 
 | Tarea | Issue | Área | Horas | Estado |
 |---|---|---|---:|---|
-| HT-02-T1 Prueba de punta a punta del flujo completo | [#53](https://github.com/angugo06/incidencias-fes/issues/53) | Pruebas | 2 | Por hacer |
-| HT-02-T2 Guía de usuario y referencia de la API | [#54](https://github.com/angugo06/incidencias-fes/issues/54) | Docs | 3 | Por hacer |
-| HT-02-T3 Actualizar el contexto permanente | [#55](https://github.com/angugo06/incidencias-fes/issues/55) | Docs | 1 | Por hacer |
-| HT-02-T4 Datos de demostración y guion de demo | [#56](https://github.com/angugo06/incidencias-fes/issues/56) | Docs | 2 | Por hacer |
-| HT-02-T5 Revisión final y retrospectiva | [#57](https://github.com/angugo06/incidencias-fes/issues/57) | Docs | 2 | Por hacer |
+| HT-02-T1 Prueba de punta a punta del flujo completo | [#53](https://github.com/angugo06/incidencias-fes/issues/53) | Pruebas | 2 | Hecho |
+| HT-02-T2 Guía de usuario y referencia de la API | [#54](https://github.com/angugo06/incidencias-fes/issues/54) | Docs | 3 | Hecho |
+| HT-02-T3 Actualizar el contexto permanente | [#55](https://github.com/angugo06/incidencias-fes/issues/55) | Docs | 1 | Hecho |
+| HT-02-T4 Datos de demostración y guion de demo | [#56](https://github.com/angugo06/incidencias-fes/issues/56) | Docs | 2 | Hecho |
+| HT-02-T5 Revisión final y retrospectiva | [#57](https://github.com/angugo06/incidencias-fes/issues/57) | Docs | 2 | Hecho |
