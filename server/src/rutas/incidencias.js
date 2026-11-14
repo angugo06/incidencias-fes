@@ -1,10 +1,10 @@
-// Rutas de /api/incidencias: registrar, listar, detalle, asignar, cambiar estado.
+// Rutas de /api/incidencias: registrar, listar, detalle, asignar, cambiar estado, comentar.
 import { Router } from 'express';
 import { ErrorApi, noEncontrada, conflicto } from '../errores.js';
 import { ESTADOS, puedeTransitar, transicionesDesde, admiteAsignacion } from '../estados.js';
 import {
   hoy, validarId, validarNuevaIncidencia,
-  validarAsignacion, validarCambioEstado,
+  validarAsignacion, validarCambioEstado, validarComentario,
 } from '../validacion.js';
 
 const LIMITE_LISTA = 200;
@@ -173,6 +173,21 @@ export function rutasIncidencias(pool, { zonaHoraria }) {
       );
     });
     res.json(await obtenerDetalle(pool, id));
+  });
+
+  // Agregar comentario al seguimiento
+  r.post('/:id/comentarios', async (req, res) => {
+    const id = leerId(req);
+    const { texto } = exigirValido(validarComentario(req.body));
+    await enTransaccion(pool, async (client) => {
+      await bloquear(client, id);
+      await client.query(
+        `INSERT INTO seguimiento (incidencia_id, tipo, texto) VALUES ($1,'comentario',$2)`,
+        [id, texto],
+      );
+      await client.query('UPDATE incidencias SET actualizada_en = now() WHERE id = $1', [id]);
+    });
+    res.status(201).json(await obtenerDetalle(pool, id));
   });
 
   return r;

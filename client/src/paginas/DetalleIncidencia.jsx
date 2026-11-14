@@ -1,10 +1,17 @@
-// Detalle: datos, asignación y cambio de estado.
+// Detalle: datos, asignación, cambio de estado y línea de tiempo con comentarios.
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { ACCION_ESTADO, ETIQUETA_ESTADO, fechaCorta, fechaHora } from '../formato.js';
 import InsigniaEstado from '../componentes/InsigniaEstado.jsx';
 import Aviso from '../componentes/Aviso.jsx';
+
+const TITULO_EVENTO = {
+  registro: 'Registro',
+  asignacion: 'Asignación',
+  estado: 'Cambio de estado',
+  comentario: 'Comentario',
+};
 
 export default function DetalleIncidencia() {
   const { id } = useParams();
@@ -15,6 +22,7 @@ export default function DetalleIncidencia() {
   const [exito, setExito] = useState(state?.creada ? 'Incidencia registrada correctamente.' : '');
   const [responsable, setResponsable] = useState('');
   const [notaEstado, setNotaEstado] = useState('');
+  const [comentario, setComentario] = useState('');
 
   const cargar = useCallback(() => {
     api.detalle(id).then(setInc).catch((e) => setError(e.message));
@@ -88,6 +96,31 @@ export default function DetalleIncidencia() {
         </div>
       )}
 
+      <h2>Seguimiento</h2>
+      <ol className="linea-tiempo">
+        {inc.seguimiento.map((ev) => (
+          <li key={ev.id} className={`evento evento-${ev.tipo}`}>
+            <div className="evento-cabecera">
+              <strong>{TITULO_EVENTO[ev.tipo]}</strong>
+              <time>{fechaHora(ev.creado_en)}</time>
+            </div>
+            {ev.tipo === 'estado' && (
+              <div>{ETIQUETA_ESTADO[ev.estado_anterior]} → {ETIQUETA_ESTADO[ev.estado_nuevo]}</div>
+            )}
+            {ev.texto && <div>{ev.texto}</div>}
+          </li>
+        ))}
+      </ol>
+
+      <form className="panel" onSubmit={(e) => {
+        e.preventDefault();
+        ejecutar(() => api.comentar(inc.id, comentario), 'Comentario agregado.', () => setComentario(''));
+      }}>
+        <h2>Agregar comentario</h2>
+        <textarea rows={2} maxLength={500} value={comentario} onChange={(e) => setComentario(e.target.value)}
+          aria-label="Comentario" />
+        <button className="boton" disabled={!comentario.trim()}>Comentar</button>
+      </form>
     </section>
   );
 }

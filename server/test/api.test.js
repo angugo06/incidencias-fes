@@ -162,6 +162,16 @@ test('estado desconocido devuelve 400', async () => {
   await api().patch(`/api/incidencias/${a.id}/estado`).send({ estado: 'volando' }).expect(400);
 });
 
+// ---- Seguimiento (HU-08)
+test('comentarios se agregan en orden y validan texto', async () => {
+  const a = await crear();
+  await api().post(`/api/incidencias/${a.id}/comentarios`).send({ texto: '  ' }).expect(400);
+  await api().post(`/api/incidencias/${a.id}/comentarios`).send({ texto: 'Primero' }).expect(201);
+  const { body } = await api().post(`/api/incidencias/${a.id}/comentarios`).send({ texto: 'Segundo' }).expect(201);
+  assert.deepEqual(body.seguimiento.map((e) => e.texto), ['Incidencia registrada', 'Primero', 'Segundo']);
+  await api().post('/api/incidencias/999/comentarios').send({ texto: 'x' }).expect(404);
+});
+
 test('ruta /api desconocida devuelve 404 JSON', async () => {
   const { body } = await api().get('/api/nada').expect(404);
   assert.equal(body.error.codigo, 'ruta_no_encontrada');

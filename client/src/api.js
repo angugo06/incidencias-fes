@@ -36,4 +36,5 @@ export const api = {
   asignar: (id, responsable_id) => pedir('PATCH', `/incidencias/${id}/asignacion`, { responsable_id }),
   cambiarEstado: (id, estado, comentario) =>
     pedir('PATCH', `/incidencias/${id}/estado`, { estado, comentario }),
+  comentar: (id, texto) => pedir('POST', `/incidencias/${id}/comentarios`, { texto }),
 };

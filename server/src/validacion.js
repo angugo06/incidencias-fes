@@ -55,3 +55,11 @@ export function validarCambioEstado(body = {}, estadosValidos) {
   if (comentario.length > COMENTARIO_MAX) errores.comentario = `Máximo ${COMENTARIO_MAX} caracteres`;
   return { valor: { estado: body.estado, comentario: comentario || null }, errores };
 }
+
+export function validarComentario(body = {}) {
+  const errores = {};
+  const texto = typeof body.texto === 'string' ? body.texto.trim() : '';
+  if (!texto) errores.texto = 'Escribe el comentario';
+  else if (texto.length > COMENTARIO_MAX) errores.texto = `Máximo ${COMENTARIO_MAX} caracteres`;
+  return { valor: { texto }, errores };
+}
