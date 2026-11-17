@@ -26,6 +26,10 @@ Hechas las 11 historias (30 pts, 60 h). Cada sprint lo entrega su integrante con
 | Docker Compose | **No probado** (no había Docker en el entorno de desarrollo) |
 | GitHub | 57 issues (11 historias + 46 tareas como sub-issues) con milestones Sprint 1-3; ver `docs/github.md` |
 
+## Entrega
+
+Documentación en PDF (`docs/Documentacion_Incidencias_FES.pdf`, con integrantes, URL del repositorio y Anexo A con el tablero de Scrum) y ZIP del proyecto sin `node_modules` ni `.env`. Revisión del 2026-11-17: 35 de 35 casos de servidor, 9 de 9 de cliente y `vite build` correctos.
+
 ## Pendiente / siguiente
 
 - [ ] Probar `docker compose up` en una máquina con Docker Desktop.
