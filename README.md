@@ -68,6 +68,7 @@ incidencias/
 | [docs/gantt.md](docs/gantt.md) | Diagrama de Gantt (Mermaid + imagen) |
 | [docs/backlog.csv](docs/backlog.csv) | Backlog completo (historias y tareas) |
 | [docs/github.md](docs/github.md) | Issues, etiquetas y GitHub Project ligados al plan |
+| [docs/Documentacion_Incidencias_FES.pdf](docs/Documentacion_Incidencias_FES.pdf) | Documentación de entrega: integrantes, planeación, verificación y Anexo A (tablero de Scrum) |
 | [docs/guia-equipo.md](docs/guia-equipo.md) | Pasos de cada integrante para entregar su sprint con su propia cuenta |
 | [contexto/](contexto/ESTADO.md) | Estado actual, decisiones, convenciones y glosario |
 
@@ -75,11 +76,11 @@ incidencias/
 
 30 puntos y 60 horas en 11 historias (10 puntos y 20 horas por sprint) (2 técnicas y 9 de usuario).
 
-| Sprint | Fechas | Integrante |
+| Sprint | Fechas | Integrante - Nombre Git |
 |---|---|---|
-| 1 Cimientos y registro | 4–6 nov | [@angugo06](https://github.com/angugo06) |
-| 2 Atención de la incidencia | 9–11 nov | [@IanBS375](https://github.com/IanBS375) |
-| 3 Seguimiento, filtros y cierre | 12–17 nov | [@Diegovivas12](https://github.com/Diegovivas12) |
+| 1 Cimientos y registro | 4–6 nov | Guzman Gonzalez Angel Andre - [angugo06](https://github.com/angugo06) |
+| 2 Atención de la incidencia | 9–11 nov | Bustos Sanchez Ian Rodrigo - [IanBS375](https://github.com/IanBS375) |
+| 3 Seguimiento, filtros y cierre | 12–17 nov | Vivas Perez Diego - [Diegovivas12](https://github.com/Diegovivas12) |
 
 Cada integrante entrega su sprint con sus propios commits y un pull request ([guía](docs/guia-equipo.md)); el avance real está en [contexto/ESTADO.md](contexto/ESTADO.md).
 
